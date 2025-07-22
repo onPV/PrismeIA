@@ -96,26 +96,32 @@ La **Phase 0 : Initialisation et Configuration du Projet** est désormais **term
 
 ---
 
-## 🐳 Gestion de l'Environnement Docker
+## 🐳 Gestion de l'Environnement de Développement
 
-L'intégralité de l'environnement de développement de PrismeIA (Frontend, Backend, Base de Données PostgreSQL, et Nginx comme reverse proxy) est gérée via Docker Compose.
+L'intégralité de l'environnement (Frontend, Backend, Base de Données, Nginx) est gérée via Docker et des scripts simplifiés.
 
-Assurez-vous d'être dans le répertoire `docker-prismeIA/` pour exécuter les commandes Docker Compose.
+### 🚀 Lancer l'Environnement
 
-### 🚀 Lancer et Reconstruire l'Environnement
+Pour démarrer tous les services, reconstruire les images si nécessaire et lancer les conteneurs en arrière-plan, exécutez simplement le script suivant depuis la racine du projet :
 
-Pour démarrer tous les services, reconstruire les images (afin de prendre en compte les dernières modifications dans les Dockerfiles ou les dépendances) et lancer les conteneurs en arrière-plan :
+```bash
+./scripts/start-prisme.sh
+```
 
-    cd docker-prismeIA/
-    docker compose up --build -d
+_(Si vous rencontrez une erreur de permission, rendez les scripts exécutables une seule fois avec : `chmod +x ./scripts/_.sh`)\*
 
-Pour démarrer tous les services,
-cd docker-prismeIA/
-docker compose down -v
+### 🛑 Arrêter l'Environnement
 
-Après l'exécution de cette commande, l'application sera accessible via votre navigateur :
-Frontend : http://localhost
-Backend (via Nginx) : http://localhost/api/ (les routes API seront définies dans la Phase 1)
+Pour arrêter tous les services et supprimer les volumes associés (y compris la base de données de développement), exécutez :
+
+```bash
+./scripts/stop-prisme.sh
+```
+
+Après avoir lancé `start-prisme.sh`, l'application sera accessible via votre navigateur :
+
+- **Frontend :** `http://localhost`
+- **Backend (via Nginx) :** `http://localhost/api/` (les routes API seront définies dans la Phase 1)
 
 ---
 
