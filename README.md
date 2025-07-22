@@ -144,6 +144,31 @@ La **Phase 0 : Initialisation et Configuration du Projet** est désormais **term
 
 ---
 
+---
+
+## 🐳 Gestion de l'Environnement Docker
+
+L'intégralité de l'environnement de développement de PrismeIA (Frontend, Backend, Base de Données PostgreSQL, et Nginx comme reverse proxy) est gérée via Docker Compose.
+
+Assurez-vous d'être dans le répertoire `docker-prismeIA/` pour exécuter les commandes Docker Compose.
+
+### 🚀 Lancer et Reconstruire l'Environnement
+
+Pour démarrer tous les services, reconstruire les images (afin de prendre en compte les dernières modifications dans les Dockerfiles ou les dépendances) et lancer les conteneurs en arrière-plan :
+
+    cd docker-prismeIA/
+    docker compose up --build -d
+
+Pour démarrer tous les services,
+cd docker-prismeIA/
+docker compose down -v
+
+Après l'exécution de cette commande, l'application sera accessible via votre navigateur :
+Frontend : http://localhost
+Backend (via Nginx) : http://localhost/api/ (les routes API seront définies dans la Phase 1)
+
+---
+
 ## ➡️ Prochaines Étapes
 
 Maintenant que la Phase 0 est terminée et que l'environnement de développement est pleinement opérationnel avec Docker, nous sommes prêts à entamer la **Phase 1 : Cœur de l'Authentification et Gestion des Utilisateurs**.
