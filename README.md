@@ -94,7 +94,7 @@ PrismeIA est basée sur une **architecture modulaire / microservices** pour une 
 
 ## 🚀 Avancement du Projet : Phase 0
 
-La **Phase 0 : Initialisation et Configuration du Projet** est bien avancée. Nous avons mis en place les fondations nécessaires pour démarrer le développement.
+La **Phase 0 : Initialisation et Configuration du Projet** est désormais **terminée** ! Toutes les fondations nécessaires pour démarrer le développement sont solidement en place.
 
 ### Réalisations de la Phase 0
 
@@ -129,15 +129,36 @@ La **Phase 0 : Initialisation et Configuration du Projet** est bien avancée. No
     - Une page de démonstration complète (`frontend/src/app/demo-ui/page.tsx`) a été développée pour visualiser tous les composants graphiques majeurs et la palette de couleurs "Slate", essentielle pour le travail du graphiste. Cette page est entièrement fonctionnelle.
 
 5.  **Backend initialisé (Symfony) :**
+
     - Un projet Symfony a été créé dans le dossier `backend/`.
-    - Le `symfony/web-server-bundle` a été ajouté pour faciliter le développement local.
+    - L'utilisation de `symfony server:start` via Symfony CLI est confirmée comme méthode de lancement du serveur de développement.
     - Le fichier `.env` a été configuré avec l'URL de la base de données PostgreSQL qui sera utilisée avec Docker (`DATABASE_URL="postgresql://symfony:symfony@db:5432/prisme_ia?serverVersion=16&charset=utf8"`).
-    - Le serveur de développement Symfony a été testé avec succès sur `http://127.0.0.1:8000`.
+    - Le serveur de développement Symfony a été testé avec succès sur `https://127.0.0.1:8000`.
+
+6.  **Configuration Docker Complète (Frontend, Backend, BDD) :**
+    - Les `Dockerfile.dev` pour le frontend (Next.js) et le backend (PHP-FPM) ont été créés et optimisés.
+    - Le fichier `nginx/nginx.conf` a été configuré pour servir le frontend et proxyfier les requêtes API vers le backend.
+    - Le fichier `docker/docker-compose.yml` orchestre désormais les services `db` (PostgreSQL), `php` (Symfony), `frontend_dev` (Next.js dev server) et `nginx`.
+    - Les services Docker ont été démarrés avec succès via `docker compose up --build -d`.
+    - L'application frontend est accessible via `http://localhost` et la communication avec le backend via `http://localhost/api/` est établie.
 
 ---
 
-## Prochaines Étapes
+## ➡️ Prochaines Étapes
 
-Nous sommes maintenant prêts à avancer vers l'initialisation et la configuration de Docker pour que tous les services (frontend, backend, base de données) puissent fonctionner ensemble de manière cohérente dans un environnement conteneurisé.
+Maintenant que la Phase 0 est terminée et que l'environnement de développement est pleinement opérationnel avec Docker, nous sommes prêts à entamer la **Phase 1 : Cœur de l'Authentification et Gestion des Utilisateurs**.
+
+Cette phase consistera à implémenter les fonctionnalités essentielles de gestion des utilisateurs, y compris :
+
+- **Définition et implémentation des API d'authentification (backend) :**
+  - Enregistrement de nouveaux utilisateurs (email/mot de passe).
+  - Connexion des utilisateurs (génération de tokens JWT).
+  - Gestion des mots de passe oubliés et réinitialisation.
+  - Préparation pour l'intégration de l'authentification tierce (Google, LinkedIn).
+- **Développement des modèles de données nécessaires (BDD) :**
+  - Tables pour les utilisateurs, profils et sessions.
+- **Mise en place des interfaces utilisateur (frontend) :**
+  - Pages d'inscription et de connexion.
+  - Page de profil utilisateur basique (affichage et modification des informations de contact).
 
 ---

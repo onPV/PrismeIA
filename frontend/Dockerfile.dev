@@ -1,0 +1,20 @@
+# frontend/Dockerfile.dev
+FROM node:20-alpine
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier package.json et package-lock.json (ou yarn.lock) pour installer les dépendances
+COPY package*.json ./
+
+# Installer les dépendances
+RUN npm install
+
+# Copier le reste du code source
+COPY . .
+
+# Exposer le port de développement de Next.js
+EXPOSE 3000
+
+# Commande pour lancer le serveur de développement Next.js
+CMD ["npm", "run", "dev"]

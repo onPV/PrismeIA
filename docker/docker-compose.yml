@@ -1,0 +1,80 @@
+# docker/docker-compose.yml
+services:
+  # Service PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: prismeia_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: prisme_ia
+      POSTGRES_USER: symfony
+      POSTGRES_PASSWORD: symfony
+    volumes:
+      # Volume persistant pour les données de la base de données
+      - db_data:/var/lib/postgresql/data
+      # Copie le script SQL d'initialisation dans le conteneur à son démarrage
+      - ../database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      # Expose le port PostgreSQL sur ta machine locale
+      - "5432:5432"
+
+  # Service Backend (PHP-FPM pour Symfony)
+  php:
+    build:
+      context: ../backend # Chemin vers le dossier Symfony
+      dockerfile: Dockerfile.dev # Utilise le Dockerfile que tu as créé
+    container_name: prismeia_php
+    restart: unless-stopped
+    volumes:
+      # Monte le code source Symfony depuis ta machine locale dans le conteneur
+      - ../backend:/var/www/html
+    # Pas besoin d'exposer le port 9000 ici, Nginx communiquera directement avec lui.
+    # ports:
+    #   - "9000:9000" # Utile pour le debug PHP-FPM direct si besoin
+    depends_on:
+      - db # S'assure que la BDD démarre avant le PHP
+
+  # Service Nginx (API Gateway et Reverse Proxy pour le Frontend et Backend)
+  nginx:
+    image: nginx:stable-alpine
+    container_name: prismeia_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80" # Expose le port 80 (HTTP) sur ta machine locale
+      # - "443:443" # Pour HTTPS, à configurer plus tard avec un certificat si besoin
+    volumes:
+      # Monte le fichier de configuration Nginx que tu as créé
+      - ../nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      # Monte les dossiers où Nginx servira les builds frontend (si mode prod) ou les assets Symfony
+      # Pour le moment, Nginx proxyfie le serveur de dev Next.js, mais ces volumes seront utiles plus tard
+      # - ../frontend/out:/var/www/frontend # Pour les builds Next.js
+      # - ../backend/public:/var/www/html/public # Pour les assets publics de Symfony
+    depends_on:
+      - php
+      - frontend_dev # S'assure que le PHP et le Frontend démarrent avant Nginx
+
+  # Service Frontend (Serveur de développement Next.js)
+  frontend_dev:
+    build:
+      context: ../frontend # Chemin vers le dossier Next.js
+      dockerfile: Dockerfile.dev # Utilise le Dockerfile que tu as créé
+    container_name: prismeia_frontend_dev
+    restart: unless-stopped
+    volumes:
+      # Monte le code source Next.js depuis ta machine locale dans le conteneur
+      - ../frontend:/app
+      # Exclut le node_modules local pour que les dépendances soient gérées dans le conteneur
+      - /app/node_modules
+    # N'expose pas le port 3000 directement, Nginx s'en chargera
+    # ports:
+    #   - "3000:3000" # Utile pour le debug direct du frontend si besoin
+    environment:
+      # Garde NODE_ENV à 'development' pour le serveur de dev Next.js
+      NODE_ENV: development
+      # Tu peux ajouter des variables d'environnement pour Next.js ici si tu en as besoin
+      # Par exemple: NEXT_PUBLIC_API_URL: http://nginx/api
+    #depends_on: # Pas de dépendance directe, il peut démarrer seul
+
+volumes:
+  # Définition du volume persistant pour la base de données
+  db_data:
