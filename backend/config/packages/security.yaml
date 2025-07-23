@@ -18,6 +18,13 @@ security:
         api:
             pattern: ^/api # Toutes les routes sous /api sont protégées
             stateless: true # L'API est sans état (chaque requête contient le token)
+            provider: app_user_provider
+            json_login:
+                check_path: /api/auth/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: true # Utilise le JWT authenticator de Lexik
 
         main:
@@ -33,15 +40,10 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
-        # Permet l'accès public à la route de connexion
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
-        # Permet l'accès public à la route d'inscription
         - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
-        # Toutes les autres routes sous /api nécessitent une authentification complète
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS } # <-- Doit être présent et PUBLIC_ACCESS
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-        # Autres règles d'accès selon les rôles si nécessaire
 
 when@test:
     security:

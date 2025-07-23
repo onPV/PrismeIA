@@ -24,3 +24,54 @@ Content-Type: application/json
     "email": "",
     "password": ""
 }
+
+
+
+
+#####################################################################################################
+### Test de l'API de Connexion obtenir un Token JWT et un Refresh Token
+#####################################################################################################
+
+### 1. S'inscrire (Crée un NOUVEL utilisateur)
+POST http://localhost/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "utilisateur.final.connexion@example.com",
+    "password": "MotDePasseFinal123!"
+}
+
+### 2. Se connecter pour obtenir JWT et Refresh Token (avec le NOUVEL utilisateur)
+POST http://localhost/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "utilisateur.final.connexion@example.com",
+    "password": "MotDePasseFinal123!"
+}
+
+### 3. Tenter d'accéder à une route protégée SANS token (Échec attendu : 401 Unauthorized)
+GET http://localhost/api/auth/protected
+Content-Type: application/json
+
+### 4. Tenter d'accéder à une route protégée AVEC token (Succès attendu : 200 OK)
+# Remplacez <YOUR_JWT_TOKEN_HERE> par le token obtenu à l'étape 2
+GET http://localhost/api/auth/protected
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NTMyOTU0ODYsImV4cCI6MTc1MzI5OTA4Niwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidXRpbGlzYXRldXIuZmluYWwuY29ubmV4aW9uQGV4YW1wbGUuY29tIn0.AdDbJasjV0SCtja-sZLqLr0Ed5focN93w9IQm7ti7MMjddP_v3G8mGObTUAcwYKfS-WrWA3LpAu8hN8kjxlWXHesEq22ZyN1Xdn1sGHwTFZsGncICzaxIclDkMtRmic_F9Nvq25levHK8V6orQYxhUshaJoqyqFhTgQFFNMiRR3LZQFLIa172q17d09izOr84xWYSJOCaCpY6vk0CMYPTd7d6knl4YXFHthoXIVUYdm2zVLseEHvG6VHPWHYIoMC4RBwoZZjdDzU7kLCdqIpa2fKj5mpc-TYc_8GCo92iu98CG4gUKDTl0SUrOpC1rmeOeqWRVhJ0Fy8-HgrjdlK7UP2Zx2gGSzysAUD01q5Kv9uEN0gy-x26PK4M3hb6Q-1cWK6WkapyeT7YwpOmx81lnZj6Amwq0W_KQ3bP4wluDtiQ_RRTXOKwtdyFa85V_ZiU9xoD_kLKUuA5aY8fLZ2mB-AgW88mEQDX9KCucmfrzJQXgUBOoaRAoa5XuJLhjGHI1jCVuF4sNLKctpMdqwiOzDwOthtnGmGEnhM-RrwajERy4qled3mVfuUjZ3HOvEI_Z0guihvzHpQhCr3L7qa1CrXmp0tkjYjjpOl5qzXO4uVE_HRcm9jFEcrwXG_Zfz2A43qVUxbfNXvXy6-lUKktdjlNkjAKEjqFk2H_jBA3XQ
+
+### 5. Rafraîchir le token (Succès attendu)
+POST http://localhost/api/token/refresh
+Content-Type: application/json
+
+{
+    "refresh_token": "8316b7b94ba1f4b9188fc8c05430d02a33077d1c32a6f1ec6e9bde061c8d283efa30cd172cbbadd685e0318907403c40ee1b3a92fb5752d134a4136503f70fe4"
+}
+
+### 6. Rafraîchir le token avec un token invalide (Échec attendu : 401 Unauthorized)
+POST http://localhost/api/token/refresh
+Content-Type: application/json
+
+{
+    "refresh_token": "token_invalide_ou_expire_ou_non_existant"
+}

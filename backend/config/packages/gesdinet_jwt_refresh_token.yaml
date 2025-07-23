@@ -1,0 +1,4 @@
+# backend/config/packages/gesdinet_jwt_refresh_token.yaml
+gesdinet_jwt_refresh_token:
+    ttl: 604800 # Durée de vie du refresh token en secondes (7 jours par défaut)
+    user_provider: app_user_provider # Doit correspondre à votre user provider dans security.yaml

@@ -1,5 +1,29 @@
-controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
-    type: attribute
+# backend/config/routes.yaml - Routage Explicite des API d'Authentification
+
+# Définition explicite de la route d'inscription
+api_auth_register:
+    path: /api/auth/register
+    methods: [POST]
+    controller: App\Controller\Api\AuthController::register
+
+# Définition explicite de la route de connexion
+api_auth_login:
+    path: /api/auth/login
+    methods: [POST]
+    controller: App\Controller\Api\AuthController::login
+
+# Définition explicite de la route protégée de test
+api_auth_protected_test:
+    path: /api/auth/protected
+    methods: [GET]
+    controller: App\Controller\Api\AuthController::testProtectedEndpoint
+# NOTE : La route de rafraîchissement (gesdinet_jwt_refresh_token)
+# sera ajoutée ultérieurement si nécessaire, ou gérée par un contrôleur personnalisé.
+# Pour l'instant, on se concentre sur register et login.
+
+# Surcharge de la route de rafraîchissement du token du bundle
+# pour pointer explicitement vers notre contrôleur personnalisé.
+gesdinet_jwt_refresh_token: # Utilise le nom de route du bundle
+    path: /api/token/refresh # L'URL exacte
+    methods: [POST] # Méthode HTTP
+    controller: App\Controller\Api\RefreshTokenController::refresh # Le contrôleur et la méthode à appeler

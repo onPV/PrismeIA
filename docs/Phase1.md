@@ -25,20 +25,22 @@ Cette phase se concentrera sur la mise en place des fonctionnalités essentielle
     _ Erreurs `ClassNotFoundError` (`LexikJWTAuthenticationBundle` introuvable) dues à des problèmes de cache Composer/Symfony dans le build Docker.
     _ Problèmes persistants de synchronisation de base de données et de migrations Doctrine (table `users` ou `ia_categories` inexistante, contraintes manquantes), résolus par une réinitialisation complète et l'automatisation de `doctrine:schema:update --force` via `start-prisme.sh`.
     _ Tests avec REST Client sous VS Code validés pour les scénarios de succès (`201 Created`), email déjà utilisé (`409 Conflict`), et données manquantes (`400 Bad Request`).
-    1.3. **Implémentation de la Connexion (Login API) :**
-    _ Endpoint API `POST /api/auth/login`.
-    _ Authentification des utilisateurs par email/mot de passe.
-    _ Génération et renvoi d'un **token JWT** valide pour l'authentification des requêtes futures.
-    _ Gestion des erreurs d'authentification (identifiants invalides).
-    1.4. **Gestion des Tokens JWT :**
-    _ Installation et configuration de `lexik/jwt-authentication-bundle`.
-    _ Configuration de la génération et de la validation des tokens JWT pour sécuriser les routes API.
-    _ Implémentation de l'API de rafraîchissement de token (`POST /api/auth/refresh-token`).
+    1.3. **Implémentation de la Connexion (Login API) (Terminée et Validée) :**
+    _ Endpoint API `POST /api/auth/login` implémenté et validé.
+    _ Authentification des utilisateurs par email/mot de passe fonctionnelle.
+    _ Génération et renvoi d'un **token JWT** valide et d'un **refresh token** en cas de succès.
+    _ Gestion des erreurs d'authentification (identifiants invalides) validée.
+    1.4. **Gestion des Tokens JWT (Sécurisation des Routes et Rafraîchissement) (Terminée et Validée) :**
+    _ Installation et configuration réussie de `lexik/jwt-authentication-bundle` et `gesdinet/jwt-refresh-token-bundle`.
+    _ Protection des routes API via JWT validée (`IS_AUTHENTICATED_FULLY`).
+    _ Implémentation et validation de l'API de rafraîchissement de token (`POST /api/token/refresh`) via un contrôleur personnalisé (`App\Controller\Api\RefreshTokenController`).
+    _ Le rafraîchissement des tokens fonctionne et émet de nouveaux JWT.
     1.5. **Implémentation du Mot de Passe Oublié/Réinitialisation :**
     _ Endpoint API `POST /api/auth/forgot-password` (envoi d'un email avec un lien de réinitialisation).
     _ Endpoint API `POST /api/auth/reset-password` (traitement de la réinitialisation via un token).
     1.6. **Préparation pour l'authentification OAuth2 (Google, LinkedIn) :**
-    _ Intégration et configuration de `knpuniversity/oauth2-client-bundle`. \* Définition des endpoints `GET /api/auth/login/google` et `GET /api/auth/login/linkedin` pour initier le processus OAuth. (L'intégration complète viendra plus tard).
+    _ Intégration et configuration de `knpuniversity/oauth2-client-bundle`.
+    _ Définition des endpoints `GET /api/auth/login/google` et `GET /api/auth/login/linkedin` pour initier le processus OAuth. (L'intégration complète viendra plus tard).
 
 2.  **Backend - Service Utilisateur et Abonnements (Symfony) - Partie Profil et Crédits :**
     2.1. **Création des Entités Doctrine :**

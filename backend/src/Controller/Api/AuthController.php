@@ -13,7 +13,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface; // Pour
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface; // Pour la validation des données
 
-#[Route('/api', name: 'api_')]
+
 class AuthController extends AbstractController // CORRECTION : Nom de la classe sans "Api/"
 {
     public function __construct(
@@ -92,11 +92,27 @@ class AuthController extends AbstractController // CORRECTION : Nom de la classe
             ]
         ], Response::HTTP_CREATED); // 201 Created
     }
+    #[Route('/auth/login', name: 'api_login', methods: ['POST'])] // Garder '/auth/login'
     public function login(): JsonResponse
     {
-        // Le bundle Lexik JWT va intercepter cette requête et renvoyer le token.
-        // Cette méthode ne sera jamais réellement exécutée si l'authentification réussit.
-        // Elle sert de point d'entrée pour la configuration du firewall.
-        throw new \Exception('This should not be reached! Check your security.yaml firewall configuration.');
+        throw new \Exception('This should not be reached! Check your security.yaml firewall configuration for the /api pattern and json_login.');
+    }
+
+    #[Route('/auth/protected', name: 'api_protected_test', methods: ['GET'])] // Garder '/auth/protected'
+    public function testProtectedEndpoint(): JsonResponse
+    {
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            return $this->json(['message' => 'Accès refusé. Token JWT manquant ou invalide.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return $this->json([
+            'message' => 'Bienvenue dans la zone protégée, ' . $currentUser->getEmail() . '!',
+            'user_id' => $currentUser->getId(),
+            'roles' => $currentUser->getRoles(),
+            'credits' => $currentUser->getUserProfile() ? $currentUser->getUserProfile()->getCredits() : 'N/A'
+        ], Response::HTTP_OK);
     }
 }
