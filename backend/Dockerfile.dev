@@ -30,12 +30,15 @@ RUN apk add --no-cache \
 # Installer Composer globalement
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# ACTIVER LES EXTENSIONS PHP MANQUANTES (IMPORTANT POUR PDO_PGSQL)
+RUN docker-php-ext-install pdo pdo_pgsql
+
 # Copier les fichiers du projet Symfony
 COPY . .
 
 # Installer les dépendances Composer du projet
-# On utilise --no-dev pour une image plus propre, même en dev Docker
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+# POUR LE DÉVELOPPEMENT, NOUS VOULONS TOUTES LES DÉPENDANCES (y compris les dev)
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader # <-- Suppression de --no-dev
 
 # Exposer le port PHP-FPM
 EXPOSE 9000

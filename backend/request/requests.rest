@@ -1,0 +1,26 @@
+### Test de l'API d'Inscription
+POST http://localhost/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "utilisateur1.test@example.com",
+    "password": "MotDePasseSuperSecret123!"
+}
+
+### Test d'inscription avec email déjà utilisé
+POST http://localhost/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "utilisateur.test@example.com",
+    "password": "NouveauMotDePasse!"
+}
+
+### Test d'inscription avec données manquantes
+POST http://localhost/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "",
+    "password": ""
+}

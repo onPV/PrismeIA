@@ -4,36 +4,37 @@
 
 ##
 
+### Détail de la Phase 1 : Cœur de l'Authentification et Gestion des Utilisateurs
+
 Cette phase se concentrera sur la mise en place des fonctionnalités essentielles permettant aux utilisateurs de s'inscrire, de se connecter et de gérer les informations de base de leur profil, y compris leurs crédits.
 
 **Objectifs principaux de la Phase 1 :**
 
 1.  **Backend - Service d'Authentification (Symfony) :**
-    1.1. **Mise en place de Symfony Security :**
-    _ Configuration du composant de sécurité de Symfony pour la gestion des utilisateurs, des encodeurs de mots de passe, des firewalls et des accès.
-    1.2. **Création des Entités Doctrine :**
-    _ Génération des entités Doctrine (mapping objet-relationnel) pour les tables `users` et `user_profiles` dans le dossier `backend/src/Entity/`.
-    1.3. **Implémentation de l'Inscription (Registration API) :**
-    _ Endpoint API `POST /api/auth/register`.
-    _ Validation des données (email, mot de passe).
-    _ Hachage sécurisé des mots de passe.
-    _ Création d'un nouvel utilisateur dans la table `users` et son profil associé dans `user_profiles` (avec les 400 crédits initiaux pour l'essai gratuit et la date de fin d'essai).
-    _ Génération d'un token JWT à la fin de l'inscription pour connexion immédiate (ou renvoi vers la page de connexion).
-    1.4. **Implémentation de la Connexion (Login API) :**
+    1.1. **Mise en place de Symfony Security et Création des Entités Doctrine (Terminée) :**
+    _ Configuration de `symfony/security-bundle` et `symfony/uid`.
+    _ Configuration de Doctrine pour les types UUID dans `doctrine.yaml`.
+    _ Création des entités `User` et `UserProfile` (avec `owner` et `#[MapsId]`).
+    _ Génération et application réussie des migrations Doctrine pour les tables `users` et `user_profiles`.
+    1.2. **Implémentation de l'Inscription (Registration API) (Terminée et Validée) :**
+    _ Création du contrôleur `Api/AuthController`.
+    _ Implémentation de l'endpoint `POST /api/auth/register` pour l'inscription des utilisateurs.
+    _ Validation des données d'entrée, hachage du mot de passe et persistance des entités `User` et `UserProfile` avec leurs crédits initiaux.
+    _ Tests réussis pour les scénarios d'inscription (succès, email déjà utilisé, données manquantes).
+    1.3. **Implémentation de la Connexion (Login API) :**
     _ Endpoint API `POST /api/auth/login`.
     _ Authentification des utilisateurs par email/mot de passe.
     _ Génération et renvoi d'un **token JWT** valide pour l'authentification des requêtes futures.
     _ Gestion des erreurs d'authentification (identifiants invalides).
-    1.5. **Gestion des Tokens JWT :**
+    1.4. **Gestion des Tokens JWT :**
     _ Installation et configuration de `lexik/jwt-authentication-bundle`.
     _ Configuration de la génération et de la validation des tokens JWT pour sécuriser les routes API.
     _ Implémentation de l'API de rafraîchissement de token (`POST /api/auth/refresh-token`).
-    1.6. **Implémentation du Mot de Passe Oublié/Réinitialisation :**
+    1.5. **Implémentation du Mot de Passe Oublié/Réinitialisation :**
     _ Endpoint API `POST /api/auth/forgot-password` (envoi d'un email avec un lien de réinitialisation).
     _ Endpoint API `POST /api/auth/reset-password` (traitement de la réinitialisation via un token).
-    1.7. **Préparation pour l'authentification OAuth2 (Google, LinkedIn) :**
-    _ Intégration et configuration de `knpuniversity/oauth2-client-bundle`.
-    _ Définition des endpoints `GET /api/auth/login/google` et `GET /api/auth/login/linkedin` pour initier le processus OAuth. (L'intégration complète viendra plus tard).
+    1.6. **Préparation pour l'authentification OAuth2 (Google, LinkedIn) :**
+    _ Intégration et configuration de `knpuniversity/oauth2-client-bundle`. \* Définition des endpoints `GET /api/auth/login/google` et `GET /api/auth/login/linkedin` pour initier le processus OAuth. (L'intégration complète viendra plus tard).
 
 2.  **Backend - Service Utilisateur et Abonnements (Symfony) - Partie Profil et Crédits :**
     2.1. **Création des Entités Doctrine :**
@@ -72,6 +73,10 @@ Cette phase se concentrera sur la mise en place des fonctionnalités essentielle
 - Un utilisateur peut modifier les informations de son profil (nom, email, mot de passe).
 - Les erreurs d'authentification (mauvais identifiants, mot de passe oublié) sont gérées correctement.
 - Tous les appels API sont sécurisés par le token JWT (sauf `register`, `login`, `forgot-password`).
+
+---
+
+---
 
 ---
 
@@ -136,119 +141,120 @@ Cette sous-phase est fondamentale pour la sécurité de ton application et la st
 
 3.  **Génération des Entités Doctrine (`User` et `UserProfile`) :**
 
-    a. **Création de l'entité `User` :**
-    _ Exécutez l'assistant de création d'utilisateur :
-    `bash
+            a. **Création de l'entité `User` :**
+            _ Exécutez l'assistant de création d'utilisateur :
+            `bash
+
         php bin/console make:user
-        `
-    _ Répondez aux questions comme suit :
-    _ **The name of the User entity class:** `User`
-    _ **Do you want to store user data in your database (via Doctrine)?** `yes`
-    _ **Enter a property name for your username:** `email`
-    _ **Do you want to hash passwords using bcrypt?** `yes` \* **Do you want to add a `roles` field to your User entity?** `yes`
+        `    _ Répondez aux questions comme suit :
 
-    b. **Modification de l'entité `User` pour utiliser un UUID comme ID :**
-    _ Ouvrez `backend/src/Entity/User.php`.
-    _ Remplacez la propriété `$id` et ses annotations par :
-    ```php
-    // backend/src/Entity/User.php (extrait)
+    _ **The name of the User entity class:**`User` _ **Do you want to store user data in your database (via Doctrine)?**`yes` _ **Enter a property name for your username:**`email` _ **Do you want to hash passwords using bcrypt?**`yes`\* **Do you want to add a`roles`field to your User entity?**`yes`
 
-            use Doctrine\ORM\Mapping as ORM;
-            use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
+            b. **Modification de l'entité `User` pour utiliser un UUID comme ID :**
+            _ Ouvrez `backend/src/Entity/User.php`.
+            _ Remplacez la propriété `$id` et ses annotations par :
 
-            #[ORM\Entity(repositoryClass: UserRepository::class)]
-            #[ORM\Table(name: 'users')]
-            class User implements UserInterface, PasswordAuthenticatedUserInterface
-            {
-                #[ORM\Id]
-                #[ORM\Column(type: 'uuid', unique: true)]
-                #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-                #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-                private ?string $id = null;
+            ````php
+            // backend/src/Entity/User.php (extrait)
 
-                // ... (le reste de la classe User)
-            }
-            ```
-        * Enregistrez le fichier.
+                    use Doctrine\ORM\Mapping as ORM;
+                    use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
-    c. **Création de l'entité `UserProfile` :**
-    _ Exécutez l'assistant de création d'entité :
-    `bash
-        php bin/console make:entity UserProfile
-        `
-    _ Répondez aux questions comme suit pour les champs :
-    _ `first_name` (`string`, `100`, nullable `yes`)
-    _ `last_name` (`string`, `100`, nullable `yes`)
-    _ `phone_number` (`string`, `20`, nullable `yes`)
-    _ `address` (`text`, nullable `yes`)
-    _ `company_name` (`string`, `255`, nullable `yes`)
-    _ `credits` (`integer`, nullable `no`, default `400`)
-    _ `trial_end_date` (`datetime_immutable`, nullable `yes`)
-    _ `is_trial_used` (`boolean`, nullable `no`, default `false`)
-    _ `status` (`string`, `50`, nullable `no`, default `'active'`)
-    _ `created_at` (`datetime_immutable`, nullable `no`, default `CURRENT_TIMESTAMP`) \* `updated_at` (`datetime_immutable`, nullable `no`, default `CURRENT_TIMESTAMP`)
+                    #[ORM\Entity(repositoryClass: UserRepository::class)]
+                    #[ORM\Table(name: 'users')]
+                    class User implements UserInterface, PasswordAuthenticatedUserInterface
+                    {
+                        #[ORM\Id]
+                        #[ORM\Column(type: 'uuid', unique: true)]
+                        #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+                        #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+                        private ?string $id = null;
 
-        * Pour la relation `OneToOne` avec `User` :
-            * **New field name:** `user`
-            * **Field type:** `ManyToOne` (oui, choisissez `ManyToOne` ici pour démarrer la relation)
-            * **What entity does this field reference?** `User`
-            * **Is the `User.userProfiles` property allowed to be null?** `no`
-            * **Do you want to add a new property to `App\Entity\User` for the other side of the relationship?** `yes`
-            * **Change its name?** `userProfile` (au singulier)
-            * **What type of relationship is this?** `OneToOne`
-            * **Is `App\Entity\UserProfile.user` allowed to be null?** `no`
+                        // ... (le reste de la classe User)
+                    }
+                    ```
+                * Enregistrez le fichier.
 
-    d. **Ajustement de l'ID de `UserProfile` et de son constructeur :**
-    _ Ouvrez `backend/src/Entity/UserProfile.php`.
-    _ Remplacez la propriété `$id` et son constructeur par le code suivant pour lier l'ID du profil à celui de l'utilisateur et initialiser les valeurs par défaut :
-    ```php
-    // backend/src/Entity/UserProfile.php (extrait)
+            c. **Création de l'entité `UserProfile` :**
+            _ Exécutez l'assistant de création d'entité :
+            `bash
+                php bin/console make:entity UserProfile
+                `
+            _ Répondez aux questions comme suit pour les champs :
+            _ `first_name` (`string`, `100`, nullable `yes`)
+            _ `last_name` (`string`, `100`, nullable `yes`)
+            _ `phone_number` (`string`, `20`, nullable `yes`)
+            _ `address` (`text`, nullable `yes`)
+            _ `company_name` (`string`, `255`, nullable `yes`)
+            _ `credits` (`integer`, nullable `no`, default `400`)
+            _ `trial_end_date` (`datetime_immutable`, nullable `yes`)
+            _ `is_trial_used` (`boolean`, nullable `no`, default `false`)
+            _ `status` (`string`, `50`, nullable `no`, default `'active'`)
+            _ `created_at` (`datetime_immutable`, nullable `no`, default `CURRENT_TIMESTAMP`) \* `updated_at` (`datetime_immutable`, nullable `no`, default `CURRENT_TIMESTAMP`)
 
-            use Doctrine\ORM\Mapping as ORM;
-            use App\Entity\User; // N'oubliez pas l'import de User
+                * Pour la relation `OneToOne` avec `User` :
+                    * **New field name:** `user`
+                    * **Field type:** `ManyToOne` (oui, choisissez `ManyToOne` ici pour démarrer la relation)
+                    * **What entity does this field reference?** `User`
+                    * **Is the `User.userProfiles` property allowed to be null?** `no`
+                    * **Do you want to add a new property to `App\Entity\User` for the other side of the relationship?** `yes`
+                    * **Change its name?** `userProfile` (au singulier)
+                    * **What type of relationship is this?** `OneToOne`
+                    * **Is `App\Entity\UserProfile.user` allowed to be null?** `no`
 
-            #[ORM\Entity(repositoryClass: UserProfileRepository::class)]
-            #[ORM\Table(name: 'user_profiles')]
-            class UserProfile
-            {
-                #[ORM\Id]
-                #[ORM\Column(type: 'uuid', unique: true)]
-                private ?string $id = null;
-
-                #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'userProfile', cascade: ['persist', 'remove'])]
-                #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, unique: true)]
-                private ?User $user = null;
-
-                // ... (autres propriétés)
-
-                public function __construct(User $user)
-                {
-                    $this->user = $user;
-                    $this->id = $user->getId();
-                    $this->credits = 400;
-                    $this->isTrialUsed = false;
-                    $this->status = 'active';
-                    $this->createdAt = new \DateTimeImmutable();
-                    $this->updatedAt = new \DateTimeImmutable();
-                }
-
-                // ... (getters et setters, y compris getId() et setUser())
-            }
-            ```
-        * Assurez-vous que la méthode `setUser` dans `UserProfile.php` met également à jour l'ID du profil si l'utilisateur est défini :
+            d. **Ajustement de l'ID de `UserProfile` et de son constructeur :**
+            _ Ouvrez `backend/src/Entity/UserProfile.php`.
+            _ Remplacez la propriété `$id` et son constructeur par le code suivant pour lier l'ID du profil à celui de l'utilisateur et initialiser les valeurs par défaut :
             ```php
-            public function setUser(?User $user): static
-            {
-                $this->user = $user;
-                if ($user !== null) {
-                    $this->id = $user->getId();
-                } else {
-                    $this->id = null;
-                }
-                return $this;
-            }
-            ```
-        * Enregistrez les fichiers `backend/src/Entity/User.php` et `backend/src/Entity/UserProfile.php`.
+            // backend/src/Entity/UserProfile.php (extrait)
+
+                    use Doctrine\ORM\Mapping as ORM;
+                    use App\Entity\User; // N'oubliez pas l'import de User
+
+                    #[ORM\Entity(repositoryClass: UserProfileRepository::class)]
+                    #[ORM\Table(name: 'user_profiles')]
+                    class UserProfile
+                    {
+                        #[ORM\Id]
+                        #[ORM\Column(type: 'uuid', unique: true)]
+                        private ?string $id = null;
+
+                        #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'userProfile', cascade: ['persist', 'remove'])]
+                        #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, unique: true)]
+                        private ?User $user = null;
+
+                        // ... (autres propriétés)
+
+                        public function __construct(User $user)
+                        {
+                            $this->user = $user;
+                            $this->id = $user->getId();
+                            $this->credits = 400;
+                            $this->isTrialUsed = false;
+                            $this->status = 'active';
+                            $this->createdAt = new \DateTimeImmutable();
+                            $this->updatedAt = new \DateTimeImmutable();
+                        }
+
+                        // ... (getters et setters, y compris getId() et setUser())
+                    }
+                    ```
+                * Assurez-vous que la méthode `setUser` dans `UserProfile.php` met également à jour l'ID du profil si l'utilisateur est défini :
+                    ```php
+                    public function setUser(?User $user): static
+                    {
+                        $this->user = $user;
+                        if ($user !== null) {
+                            $this->id = $user->getId();
+                        } else {
+                            $this->id = null;
+                        }
+                        return $this;
+                    }
+                    ```
+                * Enregistrez les fichiers `backend/src/Entity/User.php` et `backend/src/Entity/UserProfile.php`.
+
+            ````
 
 4.  **Mise à Jour du Schéma de la Base de Données (Migrations Doctrine) :**
     - Assurez-vous que vos conteneurs Docker (en particulier `prismeia_db`) sont démarrés (`docker compose up -d` depuis `docker-prismeIA/`).
@@ -271,3 +277,157 @@ Cette sous-phase est fondamentale pour la sécurité de ton application et la st
 - Les entités `backend/src/Entity/User.php` et `backend/src/Entity/UserProfile.php` sont créées, utilisent des UUIDs, et ont une relation `OneToOne` correcte.
 - Une nouvelle migration Doctrine a été générée avec succès.
 - La migration a été appliquée avec succès à votre base de données PostgreSQL, créant les tables `users` et `user_profiles` avec les colonnes et relations définies.
+
+---
+
+---
+
+---
+
+### 1.2. Implémentation de l'Inscription (Registration API)
+
+Cette sous-phase est dédiée à la création de l'API permettant aux nouveaux utilisateurs de s'inscrire sur la plateforme PrismeIA.
+
+**Objectifs de cette étape :**
+
+- Créer un contrôleur API dédié à l'authentification (`AuthController`).
+- Implémenter l'endpoint `POST /api/auth/register`.
+- Gérer la validation des données d'entrée (email, mot de passe).
+- Assurer le hachage sécurisé du mot de passe de l'utilisateur.
+- Créer une nouvelle entité `User` et son `UserProfile` associé (avec les 400 crédits initiaux pour l'essai gratuit et la date de fin d'essai).
+- Persister les nouvelles entités en base de données.
+- Retourner une réponse JSON appropriée (succès ou erreur).
+
+#### Instructions Détaillées :
+
+1.  **Création du Contrôleur d'Authentification :**
+
+    - Assurez-vous d'être dans le répertoire `backend/` de votre terminal.
+    - Générez un nouveau contrôleur API avec la commande `make:controller` :
+      ```bash
+      php bin/console make:controller Api/AuthController
+      ```
+      - **The name of the controller class (e.g. `BlogController`):** `Api/AuthController`
+
+2.  **Implémentation de la Logique d'Inscription (Register) :**
+
+    - Ouvrez le fichier `backend/src/Controller/Api/AuthController.php`.
+    - Remplacez tout son contenu par le code suivant, qui inclut la logique d'inscription :
+
+    ```php
+    <?php
+
+    namespace App\Controller\Api;
+
+    use App\Entity\User;
+    use App\Entity\UserProfile;
+    use Doctrine\ORM\EntityManagerInterface;
+    use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+    use Symfony\Component\HttpFoundation\JsonResponse;
+    use Symfony\Component\HttpFoundation\Request;
+    use Symfony\Component\HttpFoundation\Response;
+    use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+    use Symfony\Component\Routing\Attribute\Route;
+    use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+    #[Route('/api', name: 'api_')]
+    class AuthController extends AbstractController
+    {
+        public function __construct(
+            private EntityManagerInterface $entityManager,
+            private UserPasswordHasherInterface $passwordHasher,
+            private ValidatorInterface $validator
+        ) {
+        }
+
+        #[Route('/auth/register', name: 'app_register', methods: ['POST'])]
+        public function register(Request $request): JsonResponse
+        {
+            $data = json_decode($request->getContent(), true);
+
+            // 1. Validation des données d'entrée
+            if (empty($data['email']) || empty($data['password'])) {
+                return $this->json([
+                    'message' => 'Email et mot de passe sont requis.',
+                    'errors' => ['email' => 'L\'email est requis.', 'password' => 'Le mot de passe est requis.']
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $email = $data['email'];
+            $plainPassword = $data['password'];
+
+            // Vérifie si l'utilisateur existe déjà
+            $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+            if ($existingUser) {
+                return $this->json([
+                    'message' => 'Un utilisateur avec cet email existe déjà.'
+                ], Response::HTTP_CONFLICT); // 409 Conflict
+            }
+
+            // 2. Création de l'entité User
+            $user = new User();
+            $user->setEmail($email);
+            $user->setRoles(['ROLE_USER']); // Assigne le rôle par défaut
+
+            // Hachage du mot de passe
+            $hashedPassword = $this->passwordHasher->hashPassword(
+                $user,
+                $plainPassword
+            );
+            $user->setPassword($hashedPassword);
+
+            // Validation de l'entité User avant persistance (peut être étendu avec des contraintes)
+            $errors = $this->validator->validate($user);
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+                }
+                return $this->json(['message' => 'Erreurs de validation de l\'utilisateur.', 'errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+            }
+
+            // 3. Création de l'entité UserProfile et association
+            $userProfile = new UserProfile($user); // Passe l'objet User au constructeur de UserProfile
+            // Les valeurs par défaut (crédits, etc.) sont définies dans le constructeur de UserProfile
+
+            $user->setUserProfile($userProfile); // Associe le profil à l'utilisateur
+
+            // 4. Persistance des données
+            $this->entityManager->persist($user);
+            $this->entityManager->persist($userProfile); // Persiste aussi le profil
+            $this->entityManager->flush();
+
+            return $this->json([
+                'message' => 'Inscription réussie !',
+                'user' => [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'credits' => $userProfile->getCredits(),
+                    'trialEndDate' => $userProfile->getTrialEndDate() ? $userProfile->getTrialEndDate()->format('Y-m-d H:i:s') : null,
+                    'status' => $userProfile->getStatus(),
+                ]
+            ], Response::HTTP_CREATED); // 201 Created
+        }
+    }
+    ```
+
+    - Enregistrez le fichier.
+
+3.  **Vérification des Services Nécessaires (Installation de `symfony/validator`) :**
+    - Pour que le `ValidatorInterface` soit disponible, vous devrez peut-être installer le composant Validator si ce n'est pas déjà fait :
+      - Assurez-vous d'être dans le répertoire `backend/` de votre terminal.
+      - Exécutez :
+        ```bash
+        composer require symfony/validator
+        ```
+
+#### Critères de Validation pour l'Étape 1.2 :
+
+- Le contrôleur `Api/AuthController` est créé.
+- La méthode `register` est implémentée pour gérer l'inscription d'un utilisateur.
+- Les validations de base (email/password non vides, email unique) sont effectuées.
+- Le mot de passe est haché en utilisant `UserPasswordHasherInterface`.
+- Un utilisateur (`User`) et son profil (`UserProfile`) sont créés et persistés en base de données.
+- Le `UserProfile` est correctement associé à l'`User` avec les crédits initiaux (400) et le statut d'essai.
+- Une réponse JSON avec le statut `201 Created` et les informations de l'utilisateur est retournée en cas de succès.
+- Une réponse JSON avec un code d'erreur (400 Bad Request, 409 Conflict) est retournée en cas d'échec de la validation ou si l'email existe déjà.

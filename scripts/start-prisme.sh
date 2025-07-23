@@ -24,6 +24,11 @@ fi
 SCRIPT_DIR=$(dirname "$0")
 cd "$SCRIPT_DIR/../docker-prismeIA" || { echo -e "${RED}Erreur : Le répertoire 'docker' n'a pas été trouvé.${NC}"; exit 1; }
 
+# Arrêter et supprimer tous les conteneurs et volumes existants
+# Ceci garantit une reconstruction propre, y compris une nouvelle base de données
+echo "Arrêt et suppression des conteneurs et volumes Docker existants..."
+docker compose down -v
+
 echo ""
 echo "Lancement et reconstruction des conteneurs Docker (cela peut prendre un moment la première fois)..."
 echo ""

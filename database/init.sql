@@ -2,39 +2,14 @@
 -- Création de l'extension uuid-ossp pour les UUIDs générés
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Table des utilisateurs de base (pour la connexion)
-CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Table des profils utilisateurs (informations additionnelles et crédits)
-CREATE TABLE IF NOT EXISTS user_profiles (
-    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, -- Clé étrangère vers la table users
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
-    phone_number VARCHAR(20),
-    address TEXT,
-    company_name VARCHAR(255),
-    credits INTEGER DEFAULT 0,
-    trial_end_date TIMESTAMP,
-    is_trial_used BOOLEAN DEFAULT FALSE,
-    status VARCHAR(50) DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Table des catégories d'IA
+-- Table des catégories d'IA (NON GÉRÉE PAR DOCTRINE POUR L'INSTANT, MAIS NÉCESSAIRE)
 CREATE TABLE IF NOT EXISTS ia_categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP -- Type mis à jour pour cohérence
 );
 
 -- Ajout de données initiales pour les catégories d'IA
