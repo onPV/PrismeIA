@@ -3,7 +3,7 @@ POST http://localhost/api/auth/register
 Content-Type: application/json
 
 {
-    "email": "utilisateur1.test@example.com",
+    "email": "utilisateur.test@example.com",
     "password": "MotDePasseSuperSecret123!"
 }
 

@@ -1,7 +1,7 @@
 security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
@@ -13,6 +13,13 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
+        # Nouveau firewall pour l'API
+        api:
+            pattern: ^/api # Toutes les routes sous /api sont protégées
+            stateless: true # L'API est sans état (chaque requête contient le token)
+            jwt: true # Utilise le JWT authenticator de Lexik
+
         main:
             lazy: true
             provider: app_user_provider
@@ -28,6 +35,13 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+        # Permet l'accès public à la route de connexion
+        - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
+        # Permet l'accès public à la route d'inscription
+        - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
+        # Toutes les autres routes sous /api nécessitent une authentification complète
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        # Autres règles d'accès selon les rôles si nécessaire
 
 when@test:
     security:

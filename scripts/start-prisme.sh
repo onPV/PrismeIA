@@ -1,52 +1,44 @@
 #!/bin/bash
 
-# Script pour démarrer l'environnement de développement PrismeIA
-clear
-
-# Couleurs pour les messages
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
 echo "*****************************************************"
 echo "Tentative de démarrage de l'environnement PrismeIA..."
 echo "*****************************************************"
 
-# 1. Vérifier si Docker est en cours d'exécution
-if ! docker info > /dev/null 2>&1; then
-    echo -e "${RED} -> Erreur : Docker ne semble pas être en cours d'exécution.${NC}"
-    echo "    Veuillez démarrer Docker Desktop et réessayer."
-    exit 1
-fi
-
-# 2. Se positionner dans le répertoire docker
-# Le script est dans /scripts, donc on remonte d'un niveau et on va dans /docker
-SCRIPT_DIR=$(dirname "$0")
-cd "$SCRIPT_DIR/../docker-prismeIA" || { echo -e "${RED}Erreur : Le répertoire 'docker' n'a pas été trouvé.${NC}"; exit 1; }
-
-# Arrêter et supprimer tous les conteneurs et volumes existants
+# 1. Arrêter et supprimer tous les conteneurs et volumes existants
 # Ceci garantit une reconstruction propre, y compris une nouvelle base de données
 echo "Arrêt et suppression des conteneurs et volumes Docker existants..."
+cd docker-prismeIA/ || { echo "Erreur: Le répertoire docker-prismeIA/ n'existe pas ou n'est pas accessible."; exit 1; }
 docker compose down -v
 
-echo ""
+# 2. Lancer et reconstruire tous les services Docker
 echo "Lancement et reconstruction des conteneurs Docker (cela peut prendre un moment la première fois)..."
-echo ""
-
-# 3. Lancer Docker Compose
 docker compose up --build -d
 
-# 4. Vérifier le statut
+# Attendre que les services essentiels soient prêts (spécialement la BDD et PHP-FPM)
+echo "Attente que la base de données et le service PHP soient prêts..."
+sleep 15 # Attendre 15 secondes. Ajuster si besoin pour votre machine.
+         # Cela donne le temps aux conteneurs de démarrer complètement.
+
+# 3. Mettre à jour le schéma de la base de données via Doctrine (pour l'environnement de développement)
+# Cette commande va créer/mettre à jour les tables en fonction des entités.
+# --force est utilisé car nous réinitialisons la BDD à chaque fois.
+echo "Mise à jour du schéma de la base de données via Doctrine..."
+docker compose exec php php bin/console doctrine:schema:update --force
+
+# Vérifier si la commande de mise à jour du schéma a réussi
 if [ $? -eq 0 ]; then
-    echo ""
-    echo "******************************************************************************"
-    echo -e "${GREEN} -> L'environnement PrismeIA a été démarré avec succès !${NC}"
-    echo "    L'application est accessible sur http://localhost"
-    echo "******************************************************************************"
-    echo ""
+    echo "Schéma de la base de données mis à jour avec succès."
 else
-    echo "******************************************************************************"
-    echo -e "${RED}Une erreur est survenue lors du lancement des conteneurs Docker.${NC}"
-    echo "******************************************************************************"
-    echo ""
+    echo "Erreur lors de la mise à jour du schéma de la base de données. Veuillez vérifier les logs Docker (docker compose logs php)."
+    exit 1 # Quitte le script avec une erreur si la mise à jour du schéma échoue
 fi
+
+# Retourner à la racine du projet
+cd ../ || exit # Retourne au répertoire parent (racine du projet)
+
+echo "*****************************************************"
+echo "Démarrage de l'environnement PrismeIA terminé."
+echo "Vous pouvez vérifier l'état avec 'docker compose ps' dans le dossier docker-prismeIA."
+echo "Frontend: http://localhost"
+echo "API Backend: http://localhost/api/"
+echo "*****************************************************"

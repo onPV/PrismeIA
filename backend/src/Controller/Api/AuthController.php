@@ -92,4 +92,11 @@ class AuthController extends AbstractController // CORRECTION : Nom de la classe
             ]
         ], Response::HTTP_CREATED); // 201 Created
     }
+    public function login(): JsonResponse
+    {
+        // Le bundle Lexik JWT va intercepter cette requête et renvoyer le token.
+        // Cette méthode ne sera jamais réellement exécutée si l'authentification réussit.
+        // Elle sert de point d'entrée pour la configuration du firewall.
+        throw new \Exception('This should not be reached! Check your security.yaml firewall configuration.');
+    }
 }

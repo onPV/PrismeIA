@@ -15,12 +15,16 @@ Cette phase se concentrera sur la mise en place des fonctionnalités essentielle
     _ Configuration de `symfony/security-bundle` et `symfony/uid`.
     _ Configuration de Doctrine pour les types UUID dans `doctrine.yaml`.
     _ Création des entités `User` et `UserProfile` (avec `owner` et `#[MapsId]`).
-    _ Génération et application réussie des migrations Doctrine pour les tables `users` et `user_profiles`.
+    _ Génération et application réussie d'une migration Doctrine unique pour les tables `users` et `user_profiles` après résolution des problèmes d'historique et de `init.sql`.
     1.2. **Implémentation de l'Inscription (Registration API) (Terminée et Validée) :**
-    _ Création du contrôleur `Api/AuthController`.
-    _ Implémentation de l'endpoint `POST /api/auth/register` pour l'inscription des utilisateurs.
-    _ Validation des données d'entrée, hachage du mot de passe et persistance des entités `User` et `UserProfile` avec leurs crédits initiaux.
-    _ Tests réussis pour les scénarios d'inscription (succès, email déjà utilisé, données manquantes).
+    _ Création du contrôleur `Api/AuthController` avec l'endpoint `POST /api/auth/register`.
+    _ Implémentation de la logique de validation, hachage du mot de passe, création et persistance des entités `User` et `UserProfile`.
+    _ **Résolution des problèmes clés rencontrés :**
+    _ Erreurs de syntaxe PHP dues à des copier-coller.
+    _ Problèmes de routage Nginx (requêtes /api/ envoyées au frontend Next.js).
+    _ Erreurs `ClassNotFoundError` (`LexikJWTAuthenticationBundle` introuvable) dues à des problèmes de cache Composer/Symfony dans le build Docker.
+    _ Problèmes persistants de synchronisation de base de données et de migrations Doctrine (table `users` ou `ia_categories` inexistante, contraintes manquantes), résolus par une réinitialisation complète et l'automatisation de `doctrine:schema:update --force` via `start-prisme.sh`.
+    _ Tests avec REST Client sous VS Code validés pour les scénarios de succès (`201 Created`), email déjà utilisé (`409 Conflict`), et données manquantes (`400 Bad Request`).
     1.3. **Implémentation de la Connexion (Login API) :**
     _ Endpoint API `POST /api/auth/login`.
     _ Authentification des utilisateurs par email/mot de passe.
