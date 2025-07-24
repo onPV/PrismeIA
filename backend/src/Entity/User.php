@@ -40,32 +40,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'owner', targetEntity: UserProfile::class, cascade: ['persist', 'remove'])] // Correction : mappedBy: 'owner'
     private ?UserProfile $userProfile = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
+    // NOUVEAU : Champs pour la réinitialisation du mot de passe
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $resetPasswordToken = null;
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $resetPasswordTokenExpiresAt = null;
 
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
 
-        return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
+    public function getId(): ?string { return $this->id; }
+    public function getEmail(): ?string { return $this->email; }
+    public function setEmail(string $email): static { $this->email = $email; return $this; }
+    /** A visual identifier that represents this user. @see UserInterface */
+    public function getUserIdentifier(): string { return (string) $this->email;}
 
     /**
      * @see UserInterface
@@ -120,6 +107,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         $this->userProfile = $userProfile;
 
+        return $this;
+    }
+
+    // NOUVEAU : Getters et Setters pour les champs de réinitialisation
+    public function getResetPasswordToken(): ?string
+    {
+        return $this->resetPasswordToken;
+    }
+
+    public function setResetPasswordToken(?string $resetPasswordToken): static
+    {
+        $this->resetPasswordToken = $resetPasswordToken;
+        return $this;
+    }
+
+    public function getResetPasswordTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->resetPasswordTokenExpiresAt;
+    }
+
+    public function setResetPasswordTokenExpiresAt(?\DateTimeImmutable $resetPasswordTokenExpiresAt): static
+    {
+        $this->resetPasswordTokenExpiresAt = $resetPasswordTokenExpiresAt;
         return $this;
     }
 

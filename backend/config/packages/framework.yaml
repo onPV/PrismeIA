@@ -1,6 +1,11 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
-    secret: '%env(APP_SECRET)%'
+    secret: "%env(APP_SECRET)%"
+
+    mailer:
+        dsn: "%env(MAILER_DSN)%" # C'est la ligne cruciale
+        # Ajoutez body_renderer ici si cela fonctionne pour votre version de Symfony
+        # body_renderer: twig.mailer.renderer # Testez avec et sans si l'erreur persiste
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true

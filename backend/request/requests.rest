@@ -75,3 +75,27 @@ Content-Type: application/json
 {
     "refresh_token": "token_invalide_ou_expire_ou_non_existant"
 }
+
+
+
+
+
+#####################################################################################################
+### Set de Users pour test
+#####################################################################################################
+
+POST http://localhost/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "user1@example.com",
+    "password": "user1"
+}
+
+POST http://localhost/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "user2@example.com",
+    "password": "user2"
+}

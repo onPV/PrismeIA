@@ -43,6 +43,9 @@ security:
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS } # <-- Doit être présent et PUBLIC_ACCESS
+        # NOUVEAU : Routes pour le mot de passe oublié/réinitialisation
+        - { path: ^/api/auth/forgot-password, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth/reset-password, roles: PUBLIC_ACCESS } # Note: le token sera dans le path, mais la route de base est accessible
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

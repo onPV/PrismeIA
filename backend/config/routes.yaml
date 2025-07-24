@@ -27,3 +27,14 @@ gesdinet_jwt_refresh_token: # Utilise le nom de route du bundle
     path: /api/token/refresh # L'URL exacte
     methods: [POST] # Méthode HTTP
     controller: App\Controller\Api\RefreshTokenController::refresh # Le contrôleur et la méthode à appeler
+
+# NOUVEAU : Routes pour le Mot de Passe Oublié/Réinitialisation
+api_auth_forgot_password:
+    path: /api/auth/forgot-password
+    methods: [POST]
+    controller: App\Controller\Api\ResetPasswordController::forgotPassword
+
+api_auth_reset_password:
+    path: /api/auth/reset-password/{token}
+    methods: [POST]
+    controller: App\Controller\Api\ResetPasswordController::resetPassword

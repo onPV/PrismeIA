@@ -7,8 +7,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: prisme_ia
-      POSTGRES_USER: symfony
-      POSTGRES_PASSWORD: symfony
+      POSTGRES_USER: prisme_ia # CORRIGÉ: Utilisateur de la BDD pour correspondre à nos configs
+      POSTGRES_PASSWORD: prisme_ia # CORRIGÉ: Mot de passe de la BDD pour correspondre à nos configs
     volumes:
       # Volume persistant pour les données de la base de données
       - db_data:/var/lib/postgresql/data
@@ -28,9 +28,17 @@ services:
     volumes:
       # Monte le code source Symfony depuis ta machine locale dans le conteneur
       - ../backend:/var/www/html
-    # Pas besoin d'exposer le port 9000 ici, Nginx communiquera directement avec lui.
-    # ports:
-    #   - "9000:9000" # Utile pour le debug PHP-FPM direct si besoin
+    # Ajout de la section environment pour passer les variables à Symfony
+    environment:
+      # DATABASE_URL est souvent définie dans .env, mais on peut la mettre ici pour s'assurer
+      DATABASE_URL: postgresql://prisme_ia:prisme_ia@db:5432/prisme_ia?serverVersion=16&charset=utf8
+      # MAILER_DSN est la variable qui causait problème, elle doit être définie ici
+      # Ajoutez ici d'autres variables d'environnement Symfony si nécessaire (ex: JWT_SECRET_KEY, etc.)
+      # Ces variables sont cruciales pour le bon fonctionnement de l'application
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY}" # Exemple: Assurez-vous que ces variables sont définies dans votre .env principal ou ici
+      JWT_PUBLIC_KEY: "${JWT_PUBLIC_KEY}"
+      JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
+
     depends_on:
       - db # S'assure que la BDD démarre avant le PHP
 
@@ -78,3 +86,8 @@ services:
 volumes:
   # Définition du volume persistant pour la base de données
   db_data:
+
+# Définition des réseaux (si non spécifié, Docker Compose crée un réseau par défaut)
+networks:
+  default:
+    driver: bridge

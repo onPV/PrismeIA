@@ -1,111 +1,179 @@
 <?php
 
-namespace App\Entity;
+    namespace App\Entity;
 
-use App\Repository\UserProfileRepository;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\User; // Assure-toi d'importer l'entité User
-use Doctrine\ORM\Mapping\MapsId; // <-- AJOUTE CETTE LIGNE !
+    use App\Repository\UserProfileRepository;
+    use Doctrine\ORM\Mapping as ORM;
+    use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator; // Pour les UUIDs
+    use Gedmo\Mapping\Annotation as Gedmo; // Pour Timestampable (createdAt/updatedAt)
 
-#[ORM\Entity(repositoryClass: UserProfileRepository::class)]
-#[ORM\Table(name: 'user_profiles')]
-class UserProfile
-{
-    private ?string $id = null;
-
-    #[ORM\Id]
-    #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'userProfile', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, unique: true)]
-    #[MapsId] // L'annotation MapsId
-    private ?User $owner = null;
-
-    #[ORM\Column(length: 100, nullable: true)]
-    private ?string $first_name = null;
-
-    #[ORM\Column(length: 100, nullable: true)]
-    private ?string $last_name = null;
-
-    #[ORM\Column(length: 20, nullable: true)]
-    private ?string $phone_number = null;
-
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $address = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $company_name = null;
-
-    #[ORM\Column]
-    private ?int $credits = null;
-
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $trial_end_date = null;
-
-    #[ORM\Column]
-    private ?bool $is_trial_used = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $status = null;
-
-    #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $updated_at = null;
-
-    public function __construct(User $user)
+    #[ORM\Entity(repositoryClass: UserProfileRepository::class)]
+    #[ORM\Table(name: 'user_profiles')]
+    class UserProfile
     {
-        $this->owner = $user;
-        $this->id = $user->getId(); // Pré-remplir l'ID interne pour la cohérence
+        #[ORM\Id]
+        #[ORM\Column(type: 'uuid', unique: true)]
+        #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+        #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+        private ?string $id = null;
 
-        $this->credits = 400;
-        $this->is_trial_used = false;
-        $this->status = 'active';
-        $this->created_at = new \DateTimeImmutable();
-        $this->updated_at = new \DateTimeImmutable();
-    }
+        #[ORM\OneToOne(inversedBy: 'userProfile', targetEntity: User::class, cascade: ['persist', 'remove'])]
+        #[ORM\JoinColumn(nullable: false)]
+        private ?User $owner = null;
 
-    public function getId(): ?string
-    {
-        return $this->id ?? $this->owner?->getId();
-    }
+        #[ORM\Column(length: 255, nullable: true)]
+        private ?string $firstName = null;
 
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
+        #[ORM\Column(length: 255, nullable: true)]
+        private ?string $lastName = null;
 
-    public function setOwner(?User $owner): static
-    {
-        $this->owner = $owner;
-        if ($owner !== null) {
-            $this->id = $owner->getId();
-        } else {
-            $this->id = null;
+        #[ORM\Column(length: 20, nullable: true)]
+        private ?string $phoneNumber = null;
+
+        #[ORM\Column(length: 255, nullable: true)]
+        private ?string $address = null;
+
+        #[ORM\Column(length: 100, nullable: true)] // NOUVEAU: Champ city
+        private ?string $city = null;
+
+        #[ORM\Column(length: 10, nullable: true)] // NOUVEAU: Champ zipCode
+        private ?string $zipCode = null;
+
+        #[ORM\Column(length: 100, nullable: true)] // NOUVEAU: Champ country
+        private ?string $country = null;
+
+        #[Gedmo\Timestampable(on: 'create')]
+        #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
+        private ?\DateTimeImmutable $createdAt = null;
+
+        #[Gedmo\Timestampable(on: 'update')]
+        #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
+        private ?\DateTimeImmutable $updatedAt = null;
+
+
+        public function getId(): ?string
+        {
+            return $this->id;
         }
-        return $this;
-    }
 
-    // Getters et Setters pour les autres propriétés (inchangés)
-    public function getFirstName(): ?string { return $this->first_name; }
-    public function setFirstName(?string $first_name): static { $this->first_name = $first_name; return $this; }
-    public function getLastName(): ?string { return $this->last_name; }
-    public function setLastName(?string $last_name): static { $this->last_name = $last_name; return $this; }
-    public function getPhoneNumber(): ?string { return $this->phone_number; }
-    public function setPhoneNumber(?string $phone_number): static { $this->phone_number = $phone_number; return $this; }
-    public function getAddress(): ?string { return $this->address; }
-    public function setAddress(?string $address): static { $this->address = $address; return $this; }
-    public function getCompanyName(): ?string { return $this->company_name; }
-    public function setCompanyName(?string $company_name): static { $this->company_name = $company_name; return $this; }
-    public function getCredits(): ?int { return $this->credits; }
-    public function setCredits(int $credits): static { $this->credits = $credits; return $this; }
-    public function getTrialEndDate(): ?\DateTimeImmutable { return $this->trial_end_date; }
-    public function setTrialEndDate(?\DateTimeImmutable $trial_end_date): static { $this->trial_end_date = $trial_end_date; return $this; }
-    public function isTrialUsed(): ?bool { return $this->is_trial_used; }
-    public function setTrialUsed(bool $is_trial_used): static { $this->is_trial_used = $is_trial_used; return $this; }
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(string $status): static { $this->status = $status; return $this; }
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->created_at; }
-    public function setCreatedAt(\DateTimeImmutable $created_at): static { $this->created_at = $created_at; return $this; }
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updated_at; }
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static { $this->updated_at = $updated_at; return $this; }
-}
+        public function getOwner(): ?User
+        {
+            return $this->owner;
+        }
+
+        public function setOwner(User $owner): static
+        {
+            $this->owner = $owner;
+
+            return $this;
+        }
+
+        public function getFirstName(): ?string
+        {
+            return $this->firstName;
+        }
+
+        public function setFirstName(?string $firstName): static
+        {
+            $this->firstName = $firstName;
+
+            return $this;
+        }
+
+        public function getLastName(): ?string
+        {
+            return $this->lastName;
+        }
+
+        public function setLastName(?string $lastName): static
+        {
+            $this->lastName = $lastName;
+
+            return $this;
+        }
+
+        public function getPhoneNumber(): ?string
+        {
+            return $this->phoneNumber;
+        }
+
+        public function setPhoneNumber(?string $phoneNumber): static
+        {
+            $this->phoneNumber = $phoneNumber;
+
+            return $this;
+        }
+
+        public function getAddress(): ?string
+        {
+            return $this->address;
+        }
+
+        public function setAddress(?string $address): static
+        {
+            $this->address = $address;
+
+            return $this;
+        }
+
+        // NOUVEAU: Getters et Setters pour city, zipCode, country
+        public function getCity(): ?string
+        {
+            return $this->city;
+        }
+
+        public function setCity(?string $city): static
+        {
+            $this->city = $city;
+
+            return $this;
+        }
+
+        public function getZipCode(): ?string
+        {
+            return $this->zipCode;
+        }
+
+        public function setZipCode(?string $zipCode): static
+        {
+            $this->zipCode = $zipCode;
+
+            return $this;
+        }
+
+        public function getCountry(): ?string
+        {
+            return $this->country;
+        }
+
+        public function setCountry(?string $country): static
+        {
+            $this->country = $country;
+
+            return $this;
+        }
+
+        public function getCreatedAt(): ?\DateTimeImmutable
+        {
+            return $this->createdAt;
+        }
+
+        public function setCreatedAt(\DateTimeImmutable $createdAt): static
+        {
+            $this->createdAt = $createdAt;
+
+            return $this;
+        }
+
+        public function getUpdatedAt(): ?\DateTimeImmutable
+        {
+            return $this->updatedAt;
+        }
+
+        public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+        {
+            $this->updatedAt = $updatedAt;
+
+            return $this;
+        }
+    }
