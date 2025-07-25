@@ -1,102 +1,127 @@
+# Phase 1 : Mise en Place de l'Authentification et du Profil Utilisateur
+
+**Objectif :** Construire le socle de l'application avec un système d'authentification robuste (inscription, connexion, mot de passe oublié) et une gestion de profil utilisateur basique.
+
+---
+
+## Étapes de la Phase 1
+
+1.1. **Configuration Initiale de l'Environnement de Développement (Terminée) :**
+_ Installation et configuration de Docker et Docker Compose.
+_ Mise en place des services : Nginx, PHP-FPM, PostgreSQL, et Next.js (Node.js). \* Création de la structure des dossiers `backend` (Symfony) et `frontend` (Next.js).
+
+1.2. **Initialisation des Projets Symfony et Next.js (Terminée) :**
+_ Création des projets de base pour Symfony et Next.js.
+_ Configuration du proxy Nginx pour rediriger les appels `/api` vers le backend Symfony. \* Mise en place des scripts `start-prisme.sh` et `stop-prisme.sh` pour une gestion simplifiée de l'environnement.
+
+1.3. **Mise en Place de l'Authentification JWT (JSON Web Tokens) (Terminée) :**
+_ Installation et configuration du bundle `lexik/jwt-authentication-bundle`.
+_ Création de l'entité `User` et `UserProfile`.
+_ Développement de l'endpoint API `POST /api/auth/register` pour l'inscription.
+_ Développement de l'endpoint API `POST /api/auth/login` pour la connexion (récupération du token JWT).
+_ Implémentation du endpoint `POST /api/token/refresh` pour le rafraîchissement des tokens.
+_ Sécurisation des routes API nécessitant une authentification.
+
+1.4. **Gestion du Profil Utilisateur (Terminée) :**
+_ Création des endpoints API pour la gestion du profil :
+_ `GET /api/profile` pour récupérer les informations de l'utilisateur connecté.
+_ `PUT /api/profile` pour mettre à jour les informations.
+_ Développement des pages frontend correspondantes pour afficher et modifier le profil.
+
+1.5. **Implémentation du Mot de Passe Oublié/Réinitialisation (Terminée) :**
+_ Ajout des champs `resetPasswordToken` et `resetPasswordTokenExpiresAt` à l'entité `User`.
+_ Implémentation des endpoints API :
+_ `POST /api/auth/forgot-password` pour l'envoi d'un email avec un lien de réinitialisation.
+_ `POST /api/auth/reset-password/{token}` pour le traitement de la réinitialisation.
+_ Intégration de `symfony/mailer` pour l'envoi d'emails via un template Twig.
+_ Configuration des variables d'environnement (`MAILER_DSN`, `APP_FRONTEND_URL`) pour le développement local et la production. \* Création des pages frontend (`/auth/forgot-password` et `/auth/reset-password/[token]`) et de la page de confirmation d'envoi d'email.
+
+1.6. **Préparation pour l'authentification OAuth2 (Google, LinkedIn) (Reportée) :** \* _Cette étape est reportée à une phase ultérieure pour se concentrer sur les fonctionnalités principales._
+
+---
+
+## Critères de Validation pour la Phase 1
+
+- **[✓]** Un nouvel utilisateur peut s'inscrire avec succès et se connecter.
+- **[✓]** Les erreurs d'authentification (mauvais identifiants) sont gérées correctement.
+- **[✓]** Un utilisateur peut demander la réinitialisation de son mot de passe, recevoir un email, et réinitialiser son mot de passe avec succès via le lien fourni.
+- **[✓]** Un utilisateur connecté peut consulter et mettre à jour les informations de son profil (nom, email, mot de passe).
+- **[✓]** Toutes les routes API sensibles (comme `/api/profile`) sont bien protégées par le token JWT et inaccessibles sans authentification valide.
+- **[✓]** Les tokens JWT peuvent être rafraîchis pour maintenir la session de l'utilisateur active.
+- **[✓]** L'environnement de développement Docker est stable et les scripts de gestion fonctionnent comme prévu.
+- **[✓]** Le déploiement sur Render est fonctionnel pour le backend et le frontend, incluant les variables d'environnement nécessaires (JWT, BDD, Mailer).
+
+---
+
+---
+
+---
+
 ➡️ PHASE 1 : Cœur de l'Authentification et Gestion des Utilisateurs
 Détail de la Phase 1 : Cœur de l'Authentification et Gestion des Utilisateurs
 Cette phase se concentrera sur la mise en place des fonctionnalités essentielles permettant aux utilisateurs de s'inscrire, de se connecter et de gérer les informations de base de leur profil, y compris leurs crédits.
 
 Objectifs principaux de la Phase 1 :
-
 Backend - Service d'Authentification (Symfony) :
+
 1.1. Mise en place de Symfony Security et Création des Entités Doctrine (Terminée) :
-
 Configuration de symfony/security-bundle et symfony/uid.
-
 Configuration de Doctrine pour les types UUID dans doctrine.yaml.
-
 Création des entités User et UserProfile (avec owner et #[MapsId]).
-
 Génération et application réussie d'une migration Doctrine unique pour les tables users et user_profiles après résolution des problèmes d'historique et de init.sql.
+
 1.2. Implémentation de l'Inscription (Registration API) (Terminée et Validée) :
-
 Création du contrôleur Api/AuthController avec l'endpoint POST /api/auth/register.
-
 Implémentation de la logique de validation, hachage du mot de passe, création et persistance des entités User et UserProfile.
-
 Résolution des problèmes clés rencontrés :
 
-Erreurs de syntaxe PHP dues à des copier-coller.
+- Erreurs de syntaxe PHP dues à des copier-coller.
+- Problèmes de routage Nginx (requêtes /api/ envoyées au frontend Next.js).
+- Erreurs ClassNotFoundError (LexikJWTAuthenticationBundle introuvable) dues à des problèmes de cache Composer/Symfony dans le build Docker.
+- Problèmes persistants de synchronisation de base de données et de migrations Doctrine (table users ou ia_categories inexistante, contraintes manquantes), résolus par une réinitialisation complète et l'automatisation de doctrine:schema:update --force via start-prisme.sh.
+  Tests avec REST Client sous VS Code validés pour les scénarios de succès (201 Created), email déjà utilisé (409 Conflict), et données manquantes (400 Bad Request).
 
-Problèmes de routage Nginx (requêtes /api/ envoyées au frontend Next.js).
+  1.3. Implémentation de la Connexion (Login API) (Terminée et Validée) :
+  Endpoint API POST /api/auth/login implémenté et validé.
+  Authentification des utilisateurs par email/mot de passe fonctionnelle.
+  Génération et renvoi d'un token JWT valide et d'un refresh token en cas de succès.
+  Gestion des erreurs d'authentification (identifiants invalides) validée.
 
-Erreurs ClassNotFoundError (LexikJWTAuthenticationBundle introuvable) dues à des problèmes de cache Composer/Symfony dans le build Docker.
+  1.4. Gestion des Tokens JWT (Sécurisation des Routes et Rafraîchissement) (Terminée et Validée) :
+  Installation et configuration réussie de lexik/jwt-authentication-bundle et gesdinet/jwt-refresh-token-bundle.
+  Protection des routes API via JWT validée (IS_AUTHENTICATED_FULLY).
+  Implémentation et validation de l'API de rafraîchissement de token (POST /api/token/refresh) via un contrôleur personnalisé (App\Controller\Api\RefreshTokenController).
+  Le rafraîchissement des tokens fonctionne et émet de nouveaux JWT.
 
-Problèmes persistants de synchronisation de base de données et de migrations Doctrine (table users ou ia_categories inexistante, contraintes manquantes), résolus par une réinitialisation complète et l'automatisation de doctrine:schema:update --force via start-prisme.sh.
+  1.5. Implémentation du Mot de Passe Oublié/Réinitialisation (Terminée et Validée) :
+  Backend :
+  Ajout des champs resetPasswordToken et resetPasswordTokenExpiresAt à l'entité User.
+  Création du contrôleur Api/ResetPasswordController avec l'endpoint POST /api/auth/forgot-password (envoi d'un email avec un lien de réinitialisation) et POST /api/auth/reset-password/{token} (traitement de la réinitialisation via un token unique et à durée limitée).
+  Installation de symfony/mailer et symfony/twig-bundle pour la génération d'emails HTML via des templates Twig (emails/reset_password.html.twig).
+  Utilisation d'une variable d'environnement APP_FRONTEND_URL pour générer dynamiquement les liens de réinitialisation (local vs. déploiement).
+  Frontend (Next.js App Router) :
+  Développement de la page frontend/src/app/auth/forgot-password/page.tsx pour la demande de réinitialisation.
+  Développement de la page frontend/src/app/auth/reset-password/[token]/page.tsx pour la réinitialisation effective du mot de passe (route dynamique).
+  Ajout d'un lien "Mot de passe oublié ?" sur la page de connexion.
+  Création d'une page d'accueil (frontend/src/app/page.tsx) pour la redirection post-connexion/réinitialisation, affichant l'email de l'utilisateur et un bouton de déconnexion.
+  Résolution des problèmes clés rencontrés lors de l'implémentation de la 1.5 :
 
-Tests avec REST Client sous VS Code validés pour les scénarios de succès (201 Created), email déjà utilisé (409 Conflict), et données manquantes (400 Bad Request).
-1.3. Implémentation de la Connexion (Login API) (Terminée et Validée) :
+- Undefined type 'App\\Entity\\IaCategory' : Résolu par la création de l'entité IaCategory et son dépôt, ainsi que l'installation et la configuration de StofDoctrineExtensionsBundle pour les champs Timestampable.
+- Undefined method 'setCity' (et similaires) dans AppFixtures : Résolu par l'ajout des propriétés et méthodes correspondantes (city, zipCode, country) dans l'entité UserProfile.
+- You must configure a "Symfony\Component\Mime\BodyRendererInterface" : Résolu par l'installation de symfony/twig-bundle et la suppression de configurations manuelles conflictuelles dans services.yaml.
+- Connection could not be established with host "ssl://null:465" : Résolu par la définition correcte de MAILER_DSN dans backend/Dockerfile.dev (après avoir vérifié qu'il n'était pas lu depuis docker-compose.yml ou .env).
+- Failed to authenticate on SMTP server : Résolu par la correction des identifiants (mot de passe) Mailtrap dans le MAILER_DSN du Dockerfile.dev.
+- 404 sur la route dynamique frontend (/auth/reset-password/[token]) : Résolu par la correction de la structure de dossier Next.js ([token]/page.tsx avec les crochets) et la configuration Nginx pour proxyfier correctement les routes non-API vers le frontend.
+- Tables users ou ia_categories vides/manquantes après démarrage : Résolu par la refonte du script start-prisme.sh (ajout de l'option -bdd pour une réinitialisation complète), la minimalisation de init.sql (ne contenant que la création d'extension et les INSERT de données), et l'utilisation de Doctrine Fixtures (AppFixtures.php) pour l'insertion des données de test (avec hachage des mots de passe).
+  -Undefined property '$parameterBag' dans ResetPasswordController : Résolu par la déclaration explicite de la propriété $parameterBag avant le constructeur du contrôleur.
+- Avertissements WARN[0000] The "JWT\_..." variable is not set. : Résolu par la définition des variables JWT directement dans docker-prismeIA/.env pour être lues par Docker Compose.
+- Lien de réinitialisation pointant vers Render en local : Résolu par l'utilisation d'une variable d'environnement APP_FRONTEND_URL (définie dans backend/.env.dev pour http://localhost et sur Render pour l'URL déployée) et son injection dans ResetPasswordController.
 
-Endpoint API POST /api/auth/login implémenté et validé.
+  1.6. Préparation pour l'authentification OAuth2 (Google, LinkedIn) :
+  Intégration et configuration de knpuniversity/oauth2-client-bundle.
+  Définition des endpoints GET /api/auth/login/google et GET /api/auth/login/linkedin pour initier le processus OAuth. (L'intégration complète viendra plus tard).
 
-Authentification des utilisateurs par email/mot de passe fonctionnelle.
-
-Génération et renvoi d'un token JWT valide et d'un refresh token en cas de succès.
-
-Gestion des erreurs d'authentification (identifiants invalides) validée.
-1.4. Gestion des Tokens JWT (Sécurisation des Routes et Rafraîchissement) (Terminée et Validée) :
-
-Installation et configuration réussie de lexik/jwt-authentication-bundle et gesdinet/jwt-refresh-token-bundle.
-
-Protection des routes API via JWT validée (IS_AUTHENTICATED_FULLY).
-
-Implémentation et validation de l'API de rafraîchissement de token (POST /api/token/refresh) via un contrôleur personnalisé (App\Controller\Api\RefreshTokenController).
-
-Le rafraîchissement des tokens fonctionne et émet de nouveaux JWT.
-1.5. Implémentation du Mot de Passe Oublié/Réinitialisation (Terminée et Validée) :
-
-Backend :
-
-Ajout des champs resetPasswordToken et resetPasswordTokenExpiresAt à l'entité User.
-
-Création du contrôleur Api/ResetPasswordController avec l'endpoint POST /api/auth/forgot-password (envoi d'un email avec un lien de réinitialisation) et POST /api/auth/reset-password/{token} (traitement de la réinitialisation via un token unique et à durée limitée).
-
-Installation de symfony/mailer et symfony/twig-bundle pour la génération d'emails HTML via des templates Twig (emails/reset_password.html.twig).
-
-Utilisation d'une variable d'environnement APP_FRONTEND_URL pour générer dynamiquement les liens de réinitialisation (local vs. déploiement).
-
-Frontend (Next.js App Router) :
-
-Développement de la page frontend/src/app/auth/forgot-password/page.tsx pour la demande de réinitialisation.
-
-Développement de la page frontend/src/app/auth/reset-password/[token]/page.tsx pour la réinitialisation effective du mot de passe (route dynamique).
-
-Ajout d'un lien "Mot de passe oublié ?" sur la page de connexion.
-
-Création d'une page d'accueil (frontend/src/app/page.tsx) pour la redirection post-connexion/réinitialisation, affichant l'email de l'utilisateur et un bouton de déconnexion.
-
-Résolution des problèmes clés rencontrés lors de l'implémentation de la 1.5 :
-
-Undefined type 'App\\Entity\\IaCategory' : Résolu par la création de l'entité IaCategory et son dépôt, ainsi que l'installation et la configuration de StofDoctrineExtensionsBundle pour les champs Timestampable.
-
-Undefined method 'setCity' (et similaires) dans AppFixtures : Résolu par l'ajout des propriétés et méthodes correspondantes (city, zipCode, country) dans l'entité UserProfile.
-
-You must configure a "Symfony\Component\Mime\BodyRendererInterface" : Résolu par l'installation de symfony/twig-bundle et la suppression de configurations manuelles conflictuelles dans services.yaml.
-
-Connection could not be established with host "ssl://null:465" : Résolu par la définition correcte de MAILER_DSN dans backend/Dockerfile.dev (après avoir vérifié qu'il n'était pas lu depuis docker-compose.yml ou .env).
-
-Failed to authenticate on SMTP server : Résolu par la correction des identifiants (mot de passe) Mailtrap dans le MAILER_DSN du Dockerfile.dev.
-
-404 sur la route dynamique frontend (/auth/reset-password/[token]) : Résolu par la correction de la structure de dossier Next.js ([token]/page.tsx avec les crochets) et la configuration Nginx pour proxyfier correctement les routes non-API vers le frontend.
-
-Tables users ou ia_categories vides/manquantes après démarrage : Résolu par la refonte du script start-prisme.sh (ajout de l'option -bdd pour une réinitialisation complète), la minimalisation de init.sql (ne contenant que la création d'extension et les INSERT de données), et l'utilisation de Doctrine Fixtures (AppFixtures.php) pour l'insertion des données de test (avec hachage des mots de passe).
-
-Undefined property '$parameterBag' dans ResetPasswordController : Résolu par la déclaration explicite de la propriété $parameterBag avant le constructeur du contrôleur.
-
-Avertissements WARN[0000] The "JWT\_..." variable is not set. : Résolu par la définition des variables JWT directement dans docker-prismeIA/.env pour être lues par Docker Compose.
-
-Lien de réinitialisation pointant vers Render en local : Résolu par l'utilisation d'une variable d'environnement APP_FRONTEND_URL (définie dans backend/.env.dev pour http://localhost et sur Render pour l'URL déployée) et son injection dans ResetPasswordController.
-1.6. Préparation pour l'authentification OAuth2 (Google, LinkedIn) :
-
-Intégration et configuration de knpuniversity/oauth2-client-bundle.
-
-Définition des endpoints GET /api/auth/login/google et GET /api/auth/login/linkedin pour initier le processus OAuth. (L'intégration complète viendra plus tard).
+* _Cette étape est reportée à une phase ultérieure pour se concentrer sur les fonctionnalités principales._
 
 Backend - Service Utilisateur et Abonnements (Symfony) - Partie Profil et Crédits :
 2.1. Création des Entités Doctrine :
