@@ -1,4 +1,4 @@
-# backend/Dockerfile.prod
+# backend/Dockerfile.prod (VERSION FINALE ET NETTOYÉE)
 
 # --- 1. Stage de build pour les dépendances Composer ---
 FROM composer:2 as composer_builder
@@ -10,10 +10,9 @@ RUN composer install --no-dev --no-scripts --optimize-autoloader
 # --- 2. Stage de build pour l'application finale ---
 FROM php:8.2-fpm-alpine as app
 
-# Installe les dépendances système et les extensions PHP nécessaires pour Symfony et PostgreSQL
+# Installe Nginx et les extensions PHP (sans supervisor)
 RUN apk add --no-cache \
     nginx \
-    supervisor \
     libzip-dev \
     postgresql-dev \
     icu-dev
@@ -23,38 +22,25 @@ RUN docker-php-ext-install pdo pdo_pgsql zip intl opcache
 # Crée le répertoire de l'application
 WORKDIR /var/www/html
 
-# Copie les dépendances Composer depuis le stage de build
+# Copie les dépendances et le code
 COPY --from=composer_builder /app/vendor/ ./vendor/
-
-# Copie le code de l'application
 COPY . .
 
-# Copie la configuration Nginx de production
+# Copie les configurations
 COPY docker/prod/nginx.conf /etc/nginx/nginx.conf
-
-# !! NOUVELLE LIGNE !!
-# Copie la configuration PHP-FPM pour s'assurer que les variables d'environnement sont passées
 COPY docker/prod/php-fpm-pool.conf /usr/local/etc/php-fpm.d/zz-docker.conf
-
-# Nettoie les fichiers de configuration par défaut de Nginx
 RUN rm -rf /etc/nginx/http.d/default.conf
 
-# Assure les bonnes permissions pour les logs et le cache
+# Copie le script de démarrage et le rend exécutable
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+# Assure les bonnes permissions
 RUN mkdir -p var/cache var/log \
     && chown -R www-data:www-data var \
     && chmod -R 775 var
 
-# Expose le port 80 pour Nginx
 EXPOSE 80
 
-# Commande pour démarrer Nginx et PHP-FPM via Supervisor
-# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
-CMD [ "printenv" ]
-
-# ---- Configuration pour Supervisor (gestion des processus) ----
-RUN echo '[supervisord]' > /etc/supervisord.conf && \
-    echo 'nodaemon=true' >> /etc/supervisord.conf && \
-    echo '[program:php-fpm]' >> /etc/supervisord.conf && \
-    echo 'command=/usr/local/sbin/php-fpm -F' >> /etc/supervisord.conf && \
-    echo '[program:nginx]' >> /etc/supervisord.conf && \
-    echo 'command=/usr/sbin/nginx -g "daemon off;"' >> /etc/supervisord.conf
+# La commande de démarrage via notre script
+CMD ["./entrypoint.sh"]
