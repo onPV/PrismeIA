@@ -48,7 +48,8 @@ RUN mkdir -p var/cache var/log \
 EXPOSE 80
 
 # Commande pour démarrer Nginx et PHP-FPM via Supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD [ "printenv" ]
 
 # ---- Configuration pour Supervisor (gestion des processus) ----
 RUN echo '[supervisord]' > /etc/supervisord.conf && \
