@@ -49,7 +49,7 @@ _ Configuration des variables d'environnement (`MAILER_DSN`, `APP_FRONTEND_URL`)
 - **[✓]** Toutes les routes API sensibles (comme `/api/profile`) sont bien protégées par le token JWT et inaccessibles sans authentification valide.
 - **[✓]** Les tokens JWT peuvent être rafraîchis pour maintenir la session de l'utilisateur active.
 - **[✓]** L'environnement de développement Docker est stable et les scripts de gestion fonctionnent comme prévu.
-- **[✓]** Le déploiement sur Render est fonctionnel pour le backend et le frontend, incluant les variables d'environnement nécessaires (JWT, BDD, Mailer).
+- **[]** Le déploiement sur Render est fonctionnel pour le backend et le frontend, incluant les variables d'environnement nécessaires (JWT, BDD, Mailer).
 
 ---
 
@@ -125,64 +125,46 @@ Résolution des problèmes clés rencontrés :
 
 Backend - Service Utilisateur et Abonnements (Symfony) - Partie Profil et Crédits :
 2.1. Création des Entités Doctrine :
-
 Vérification/création des entités pour user_profiles et subscription_plans (avec les données de base des plans).
+
 2.2. Implémentation de l'API de Profil Utilisateur :
-
 Endpoint API GET /api/users/me (récupération des informations de l'utilisateur connecté, y compris les crédits restants et le statut d'essai).
-
 Endpoint API PUT /api/users/me (mise à jour des informations de profil de l'utilisateur).
-
 Endpoint API PUT /api/users/me/password (changement de mot de passe sécurisé).
-
 Endpoint API PUT /api/users/me/email (changement d'email avec mécanisme de confirmation si nécessaire).
-2.3. Logique de Gestion des Crédits Initiaux et d'Essai :
 
+2.3. Logique de Gestion des Crédits Initiaux et d'Essai :
 Assignation de 400 crédits et début de la période d'essai de 7 jours lors de l'inscription.
 
 Base de Données (PostgreSQL) :
 3.1. Mise à jour des Migrations Doctrine :
-
 Utilisation de Doctrine Migrations pour créer et appliquer les schémas de base de données pour les tables users, user_profiles et subscription_plans.
+
 3.2. Insertion des Données Initiales :
-
 Insertion des plans d'abonnement de base (subscription_plans).
-
 Les données de test pour les utilisateurs et catégories IA sont maintenant gérées par Doctrine Fixtures (AppFixtures.php).
 
 Frontend (Next.js) :
 4.1. Pages d'Authentification :
-
 Développement des pages login et register (avec des formulaires stylisés par shadcn/ui).
-
 Intégration des appels aux API d'inscription et de connexion du backend.
-
 Gestion du stockage sécurisé du token JWT (par exemple, dans les cookies HTTP-Only ou local storage avec des précautions).
-
 Redirection après connexion/inscription réussie vers le tableau de bord (/).
+
 4.2. Tableau de Bord Utilisateur (Basique) :
-
 Page dashboard affichant un message de bienvenue et les crédits restants.
-
 Message incitatif à l'abonnement si l'utilisateur est en essai ou n'a plus de crédits (sans la logique de paiement pour l'instant).
-4.3. Page de Profil Utilisateur :
 
+4.3. Page de Profil Utilisateur :
 Interface pour visualiser et modifier les informations du profil (nom, prénom, email, mot de passe).
 
 Intégration des appels aux API de profil backend.
-
 Critères de Validation pour la Phase 1 :
-
 Un nouvel utilisateur peut s'inscrire avec succès et se connecter.
-
 Un utilisateur connecté peut voir son nombre de crédits initiaux.
-
 Un utilisateur peut modifier les informations de son profil (nom, email, mot de passe).
-
 Les erreurs d'authentification (mauvais identifiants, mot de passe oublié) sont gérées correctement.
-
 Un utilisateur peut demander la réinitialisation de son mot de passe via email et le réinitialiser avec succès via le lien reçu.
-
 Tous les appels API sont sécurisés par le token JWT (sauf register, login, forgot-password, reset-password, et token/refresh).
 
 ---
@@ -542,3 +524,129 @@ Cette sous-phase est dédiée à la création de l'API permettant aux nouveaux u
 - Le `UserProfile` est correctement associé à l'`User` avec les crédits initiaux (400) et le statut d'essai.
 - Une réponse JSON avec le statut `201 Created` et les informations de l'utilisateur est retournée en cas de succès.
 - Une réponse JSON avec un code d'erreur (400 Bad Request, 409 Conflict) est retournée en cas d'échec de la validation ou si l'email existe déjà.
+
+---
+
+---
+
+---
+
+Guide de Déploiement sur Render
+Le déploiement se fera en trois parties principales : la base de données, le backend, puis le frontend.
+
+1. Déploiement de la Base de Données (PostgreSQL)
+   La base de données est le socle, nous commençons donc par elle.
+
+Dans votre tableau de bord Render, cliquez sur "New" -> "PostgreSQL".
+
+Donnez-lui un nom unique (ex: prismeia-db).
+
+Choisissez la région (ex: Frankfurt) et la version de PostgreSQL.
+
+Cliquez sur "Create Database".
+
+Une fois la base de données créée, Render vous fournira plusieurs informations de connexion. Celle qui nous intéresse le plus est l'"Internal Connection String". Elle ressemble à postgres://.... Copiez cette URL, nous en aurons besoin pour le backend.
+
+2. Déploiement du Backend (Symfony)
+   Le backend sera déployé en tant que "Web Service" à partir de son Dockerfile.
+
+Dans votre tableau de bord Render, cliquez sur "New" -> "Web Service".
+
+Connectez votre compte GitHub et sélectionnez votre dépôt PrismeIA.
+
+Configuration du service :
+
+Name : Donnez-lui un nom (ex: prismeia-backend).
+
+Runtime : Choisissez Docker. Render détectera votre Dockerfile.
+
+Root Directory : Spécifiez backend. C'est très important pour que Render sache où trouver le Dockerfile et le code source.
+
+Health Check Path : Mettez / pour le moment.
+
+Configuration des Variables d'Environnement :
+C'est l'étape la plus critique. Allez dans l'onglet "Environment" et ajoutez les variables suivantes :
+
+APP_ENV: prod
+
+APP_SECRET: VOTRE_SECRET_A_GENERER (Générez-en un avec openssl rand -base64 32 dans votre terminal et collez le résultat).
+
+DATABASE_URL: Collez l'URL de connexion interne de votre base de données Render que vous avez copiée à l'étape précédente.
+
+MAILER_DSN: votre_dsn_de_production (ex: smtp://apikey:VOTRE_CLE_SENDGRID@smtp.sendgrid.net:587). N'utilisez pas vos identifiants Mailtrap ici.
+
+APP_FRONTEND_URL: Mettez l'URL que votre frontend aura sur Render (ex: https://prismeia-frontend.onrender.com).
+
+JWT_PASSPHRASE: votre_passphrase
+
+JWT_SECRET_KEY: Collez ici le contenu complet de votre fichier config/jwt/private.pem.
+
+JWT_PUBLIC_KEY: Collez ici le contenu complet de votre fichier config/jwt/public.pem.
+
+Cliquez sur "Create Web Service". Le premier build peut prendre un certain temps.
+
+3. Déploiement du Frontend (Next.js)
+   Le frontend sera également un "Web Service" pour pouvoir gérer les redirections d'API.
+
+Dans votre tableau de bord Render, cliquez sur "New" -> "Web Service".
+
+Sélectionnez à nouveau votre dépôt PrismeIA.
+
+Configuration du service :
+
+Name : Donnez-lui un nom (ex: prismeia-frontend).
+
+Root Directory : Spécifiez frontend.
+
+Runtime : Choisissez Node.
+
+Build Command : npm install && npm run build
+
+Start Command : npm start
+
+Ajout de la Règle de Redirection (Proxy) :
+C'est ce qui permettra à votre frontend de communiquer avec votre backend.
+
+Allez dans l'onglet "Redirects/Rewrites".
+
+Cliquez sur "Add Rule".
+
+Source Path : /api/:path\*
+
+Destination URL : https://prismeia-backend.onrender.com/api/:path* (remplacez prismeia-backend par le nom réel de votre service backend).
+
+Assurez-vous que le "Action" est bien réglé sur Rewrite.
+
+Cliquez sur "Create Web Service".
+
+4. Étapes Post-Déploiement
+   Une fois les services déployés (ils auront une icône verte "deployed"), il reste une étape manuelle cruciale.
+
+Exécuter les Migrations de la Base de Données :
+
+Allez sur le tableau de bord de votre service backend (prismeia-backend).
+
+Cliquez sur l'onglet "Shell".
+
+Une fois la console connectée, tapez la commande suivante pour créer les tables :
+
+Bash
+
+php bin/console doctrine:migrations:migrate
+Tapez yes pour confirmer.
+
+(Optionnel) Charger les Fixtures :
+
+Si vous voulez vos données de test, exécutez dans la même console :
+
+Bash
+
+php bin/console doctrine:fixtures:load
+✅ Validation Finale
+Votre application devrait maintenant être en ligne !
+
+Accédez à l'URL de votre frontend (https://prismeia-frontend.onrender.com).
+
+Testez tout le flux : inscription, réception de l'email, connexion, demande de mot de passe oublié, etc.
+
+Félicitations, une fois cette étape terminée, vous aurez une application entièrement déployée et prête pour la Phase 2 !
