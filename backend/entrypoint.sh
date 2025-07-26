@@ -1,9 +1,17 @@
 #!/bin/sh
 set -e
 
-# Applique les migrations en mode production
-php bin/console doctrine:migrations:migrate --env=prod --no-interaction
+echo "================================================="
+echo "DEBUT DU SCRIPT DE VERIFICATION DE FICHIER"
+echo "Contenu du fichier /var/www/html/bin/console :"
+echo "-------------------------------------------------"
 
-# Démarre les services
-php-fpm -F &
-nginx -g 'daemon off;'
+# Affiche le contenu du fichier console dans les logs
+cat /var/www/html/bin/console
+
+echo "-------------------------------------------------"
+echo "FIN DU CONTENU DU FICHIER. Tentative d'execution..."
+echo "================================================="
+
+# On essaie quand même de lancer la commande pour voir l'erreur
+php bin/console doctrine:migrations:migrate --no-interaction
