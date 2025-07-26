@@ -1,16 +1,16 @@
-# backend/Dockerfile.prod (VERSION FINALE ET NETTOYÉE)
+# backend/Dockerfile.prod
 
 # --- 1. Stage de build pour les dépendances Composer ---
 FROM composer:2 as composer_builder
 WORKDIR /app
 COPY composer.json composer.lock ./
-# Installe uniquement les dépendances de production et optimise l'autoloader
+# LA LIGNE CRUCIALE : --no-scripts empêche l'exécution de commandes comme cache:clear au build
 RUN composer install --no-dev --no-scripts --optimize-autoloader
 
 # --- 2. Stage de build pour l'application finale ---
 FROM php:8.2-fpm-alpine as app
 
-# Installe Nginx et les extensions PHP (sans supervisor)
+# Installe Nginx et les extensions PHP
 RUN apk add --no-cache \
     nginx \
     libzip-dev \
@@ -19,7 +19,6 @@ RUN apk add --no-cache \
 
 RUN docker-php-ext-install pdo pdo_pgsql zip intl opcache
 
-# Crée le répertoire de l'application
 WORKDIR /var/www/html
 
 # Copie les dépendances et le code
