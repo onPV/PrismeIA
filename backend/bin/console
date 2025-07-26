@@ -1,8 +1,16 @@
 #!/usr/bin/env php
 <?php
 
-echo "DEMARRAGE DU FICHIER BIN/CONSOLE DE TEST FINAL.\n";
-echo "Si ce message apparait, nous utilisons le bon fichier.\n";
-echo "Le script va maintenant se terminer avec un code de succes (0) SANS lancer Symfony.\n";
+use App\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 
-exit(0); // On quitte le script avec un code de succès.
+if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
+    throw new LogicException('Symfony Runtime is missing. Try running "composer require symfony/runtime".');
+}
+
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+
+return function (array $context) {
+    $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+    return new Application($kernel);
+};
