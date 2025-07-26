@@ -1,22 +1,9 @@
 #!/bin/sh
 set -e
 
-echo "================================================="
-echo "DEBUT DU SCRIPT ENTRYPOINT.SH - VERSION DE TEST"
-echo "Si vous voyez ce message, le bon script est execute."
-echo "La commande de migration qui va etre lancee est :"
-echo "php bin/console doctrine:migrations:migrate --env=prod --no-interaction"
-echo "================================================="
+echo "Lancement du test ultime de bin/console..."
 
-# On exécute la VRAIE commande maintenant
-php bin/console doctrine:migrations:migrate --env=prod --no-interaction
+# On exécute notre script de test
+php bin/console
 
-echo "================================================="
-echo "MIGRATION TERMINEE. Demarrage des services..."
-echo "================================================="
-
-# Démarre PHP-FPM en arrière-plan
-php-fpm -F &
-
-# Démarre Nginx au premier plan
-nginx -g 'daemon off;'
+echo "Test de bin/console termine avec le code de sortie : $?"
