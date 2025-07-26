@@ -4,23 +4,12 @@
 use App\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 
-// ----- DÉBUT DE LA MODIFICATION DE FORCE -----
-// Si une variable d'environnement spécifique à Render existe, on force le mode production.
-if (isset($_SERVER['RENDER_SERVICE_ID']) || getenv('RENDER_SERVICE_ID')) {
-    $_SERVER['APP_ENV'] = 'prod';
-    $_SERVER['APP_DEBUG'] = '0';
-    $_ENV['APP_ENV'] = 'prod';
-    $_ENV['APP_DEBUG'] = '0';
-}
-// ----- FIN DE LA MODIFICATION DE FORCE -----
+require dirname(__DIR__).'/vendor/autoload.php';
 
-if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
-    throw new LogicException('Symfony Runtime is missing. Try running "composer require symfony/runtime".');
-}
+// 🔐 Forcer prod si on est sur Render
+$env = getenv('APP_ENV') ?: (getenv('RENDER') ? 'prod' : 'dev');
+$debug = (bool)(getenv('APP_DEBUG') ?? ($env !== 'prod'));
 
-require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
-
-return function (array $context) {
-    $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
-    return new Application($kernel);
-};
+$kernel = new Kernel($env, $debug);
+$application = new Application($kernel);
+$application->run();
