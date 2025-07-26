@@ -1,5 +1,8 @@
 #!/bin/sh
 set -e
+# Assurer les droits d'exécution (runtime, important avec volumes)
+chown -R www-data:www-data var
+chmod -R 775 var
 
 echo "========== Shell Environment =========="
 printenv | grep APP_
