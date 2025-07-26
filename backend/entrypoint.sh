@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-# La ligne importante est celle-ci, avec --env=prod
-php bin/console doctrine:migrations:migrate --env=prod --no-interaction
+# On peut maintenant retirer le flag --env=prod, car c'est géré dans bin/console
+php bin/console doctrine:migrations:migrate --no-interaction
 
 # Démarre PHP-FPM en arrière-plan
 php-fpm -F &
