@@ -11,8 +11,7 @@ services:
     branch: main
     rootDir: backend
     dockerfilePath: ./Dockerfile.prod
-    healthCheck: # <-- CORRECTION ICI
-      path: /healthz
+    healthCheckPath: /healthz
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -34,10 +33,10 @@ services:
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     startCommand: "npm start"
-    rewrites:
-      - source: /api/:path*
-        # Utilisation de l'URL interne du service, c'est la meilleure pratique
-        destination: http://prismeia-backend-staging.onrender.com/api/:path*
+    #rewrites:
+    #  - source: /api/:path*
+    #    # Utilisation de l'URL interne du service, c'est la meilleure pratique
+    #    destination: http://prismeia-backend-staging.onrender.com/api/:path*
 
 # Groupe de variables d'environnement secrètes
 envVarGroups:
