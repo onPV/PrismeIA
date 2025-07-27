@@ -33,10 +33,6 @@ services:
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     startCommand: "npm start"
-    # LA RÈGLE DE PROXY EST ICI
-    rewrites:
-      - source: /api/:path*
-        destination: http://prismeia-backend-staging/api/:path*
 
 # Groupe de variables d'environnement secrètes
 envVarGroups:
