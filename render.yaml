@@ -1,12 +1,11 @@
 # render.yaml
 # Blueprint pour l'infrastructure PrismeIA sur Render
-
 services:
   # Service Backend (Symfony API)
   - type: web
     name: prismeia-backend-staging
     runtime: docker
-    repo: https://github.com/onPV/PrismeIA # Assurez-vous que c'est le bon repo
+    repo: https://github.com/onPV/PrismeIA
     region: frankfurt
     branch: main
     rootDir: backend
@@ -15,18 +14,18 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: prismeia-db-staging
-          property: internalUrl
+          property: connectionString # corrigé ici
       - key: APP_ENV
         value: prod
       - key: APP_DEBUG
-        value: 0
+        value: "0"
       - fromGroup: prismeia-secrets
 
   # Service Frontend (Next.js)
   - type: web
     name: prismeia-frontend-staging
     runtime: node
-    repo: https://github.com/onPV/PrismeIA # Assurez-vous que c'est le bon repo
+    repo: https://github.com/onPV/PrismeIA
     region: frankfurt
     branch: main
     rootDir: frontend
@@ -40,9 +39,13 @@ envVarGroups:
       - key: APP_SECRET
         generateValue: true
       - key: MAILER_DSN
+        value: "smtp://47cd2f5026438c:242fcbf79f98ad@sandbox.smtp.mailtrap.io:2525" # À remplir via Render Dashboard
       - key: JWT_PASSPHRASE
+        value: "LemotdepassePrismeia2025" # À remplir aussi via Render Dashboard
       - key: JWT_SECRET_KEY
+        value: "" # Peut être une chaîne PEM base64
       - key: JWT_PUBLIC_KEY
+        value: ""
 
 # Service Base de Données (PostgreSQL)
 databases:
