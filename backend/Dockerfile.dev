@@ -44,8 +44,8 @@ RUN composer install --no-interaction --prefer-dist --no-scripts
 COPY . .
 
 # NOUVEAU : Définir la variable d'environnement MAILER_DSN directement dans l'image
-ENV MAILER_DSN="smtp://47cd2f5026438c:242fcbf79f98ad@sandbox.smtp.mailtrap.io:2525"
-ENV APP_ENV=dev
+#ENV MAILER_DSN="smtp://47cd2f5026438c:242fcbf79f98ad@sandbox.smtp.mailtrap.io:2525"
+#ENV APP_ENV=dev
 
 # Exposer le port PHP-FPM
 EXPOSE 9000

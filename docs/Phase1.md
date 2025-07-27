@@ -35,8 +35,24 @@ _ `POST /api/auth/forgot-password` pour l'envoi d'un email avec un lien de réin
 _ `POST /api/auth/reset-password/{token}` pour le traitement de la réinitialisation.
 _ Intégration de `symfony/mailer` pour l'envoi d'emails via un template Twig.
 _ Configuration des variables d'environnement (`MAILER_DSN`, `APP_FRONTEND_URL`) pour le développement local et la production. \* Création des pages frontend (`/auth/forgot-password` et `/auth/reset-password/[token]`) et de la page de confirmation d'envoi d'email.
+_ **Configuration de l'envoi d'emails (Terminée) :**
+_ Installation et configuration de `symfony/mailer`.
+_ Mise en place de **Mailtrap** comme service SMTP pour l'environnement de développement local.
+_ Validation du bon envoi des emails de réinitialisation via l'inbox Mailtrap depuis l'environnement Docker.
 
 1.6. **Préparation pour l'authentification OAuth2 (Google, LinkedIn) (Reportée) :** \* _Cette étape est reportée à une phase ultérieure pour se concentrer sur les fonctionnalités principales._
+
+1.7. **Déploiement Initial sur Render (Base de Données + Backend) (Terminée)**
+_ **Base de Données :** Création d'un service **PostgreSQL managé** sur le plan gratuit de Render pour l'environnement de staging.
+_ **Backend :** Création d'un **Web Service** sur Render pour déployer le conteneur Docker du backend (`Dockerfile.prod`).
+_ **Configuration des variables d'environnement** sur Render, incluant `DATABASE_URL`, `APP_ENV=prod`, `APP_DEBUG=0`, `MAILER_DSN` pour la production, et les clés JWT.
+_ **Résolution des problèmes de déploiement :**
+_ **Problème initial :** L'application ne démarrait pas, levant une erreur `Unable to read .env file` car elle se lançait en mode `dev` au lieu de `prod`.
+_ **Diagnostics effectués :**
+_ Confirmation via `printenv` que les variables d'environnement étaient bien présentes dans le conteneur.
+_ Confirmation via `cat` que les derniers fichiers (`entrypoint.sh`, `bin/console`) étaient bien utilisés lors du déploiement.
+_ **Cause finale identifiée :** Le processus `php` en ligne de commande, lancé depuis le script `entrypoint.sh`, n'héritait pas correctement des variables d'environnement du shell parent dans l'environnement d'exécution de Render.
+_ **Solution finale implémentée :** Remplacement de l'appel direct à `php bin/console doctrine:migrations:migrate` par un script PHP dédié (`run_migrations.php`). Ce script force l'environnement en `prod` puis exécute la commande de migration de manière programmatique, contournant ainsi le problème de transmission des variables. \* **Statut :** Le service backend est maintenant **déployé avec succès**, les migrations de la base de données sont appliquées, et l'application répond correctement aux health checks (ex: `/healthz`).
 
 ---
 
@@ -49,7 +65,10 @@ _ Configuration des variables d'environnement (`MAILER_DSN`, `APP_FRONTEND_URL`)
 - **[✓]** Toutes les routes API sensibles (comme `/api/profile`) sont bien protégées par le token JWT et inaccessibles sans authentification valide.
 - **[✓]** Les tokens JWT peuvent être rafraîchis pour maintenir la session de l'utilisateur active.
 - **[✓]** L'environnement de développement Docker est stable et les scripts de gestion fonctionnent comme prévu.
-- **[]** Le déploiement sur Render est fonctionnel pour le backend et le frontend, incluant les variables d'environnement nécessaires (JWT, BDD, Mailer).
+- **[✓]** La base de données est déployée et accessible sur Render.
+- **[✓]** Le service backend est déployé sur Render, démarre sans erreur et répond aux requêtes.
+- **[ ]** Le service frontend est déployé et communique correctement avec le backend via le système de proxy de Render.
+- **[ ]** Un utilisateur peut s'inscrire et se connecter sur l'environnement de production.
 
 ---
 

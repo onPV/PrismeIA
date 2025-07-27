@@ -30,14 +30,14 @@ services:
       - ../backend:/var/www/html
     # Ajout de la section environment pour passer les variables à Symfony
     environment:
-      # DATABASE_URL est souvent définie dans .env, mais on peut la mettre ici pour s'assurer
-      DATABASE_URL: postgresql://prisme_ia:prisme_ia@db:5432/prisme_ia?serverVersion=16&charset=utf8
-      # MAILER_DSN est la variable qui causait problème, elle doit être définie ici
-      # Ajoutez ici d'autres variables d'environnement Symfony si nécessaire (ex: JWT_SECRET_KEY, etc.)
-      # Ces variables sont cruciales pour le bon fonctionnement de l'application
-      JWT_SECRET_KEY: "${JWT_SECRET_KEY}" # Exemple: Assurez-vous que ces variables sont définies dans votre .env principal ou ici
-      JWT_PUBLIC_KEY: "${JWT_PUBLIC_KEY}"
-      JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+      MAILER_DSN: ${MAILER_DSN}
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL}
+      APP_ENV: ${APP_ENV}
+      APP_SECRET: ${APP_SECRET}
 
     depends_on:
       - db # S'assure que la BDD démarre avant le PHP
