@@ -11,8 +11,6 @@ services:
     branch: main
     rootDir: backend
     dockerfilePath: ./Dockerfile.prod
-    healthCheck: # <--- Indenté de 4 espaces, au même niveau que 'name', 'runtime', etc.
-      path: /healthz
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -34,9 +32,6 @@ services:
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     startCommand: "npm start"
-    rewrites: # <--- Indenté de 4 espaces, au même niveau que 'name', 'runtime', etc.
-      - source: /api/:path*
-        destination: https://prismeia-backend-staging.onrender.com/api/:path*
 
 # Groupe de variables d'environnement secrètes
 envVarGroups:
