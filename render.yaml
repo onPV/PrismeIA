@@ -11,7 +11,8 @@ services:
     branch: main
     rootDir: backend
     dockerfilePath: ./Dockerfile.prod
-    healthCheckPath: /healthz # Utilise votre route de health check
+    healthCheck: # <-- CORRECTION ICI
+      path: /healthz
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -35,7 +36,8 @@ services:
     startCommand: "npm start"
     rewrites:
       - source: /api/:path*
-        destination: http://prismeia-backend-staging/api/:path*
+        # Utilisation de l'URL interne du service, c'est la meilleure pratique
+        destination: http://prismeia-backend-staging.onrender.com/api/:path*
 
 # Groupe de variables d'environnement secrètes
 envVarGroups:
@@ -44,13 +46,9 @@ envVarGroups:
       - key: APP_SECRET
         generateValue: true # Render génère un secret sécurisé
       - key: MAILER_DSN
-        sync: false # À définir dans le dashboard Render
       - key: JWT_PASSPHRASE
-        sync: false # À définir dans le dashboard Render
       - key: JWT_SECRET_KEY
-        sync: false # À définir dans le dashboard Render
       - key: JWT_PUBLIC_KEY
-        sync: false # À définir dans le dashboard Render
 
 # Service Base de Données (PostgreSQL)
 databases:
