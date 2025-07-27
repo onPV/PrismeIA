@@ -1,3 +1,4 @@
+// frontend/src/app/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -7,17 +8,16 @@ import { toast } from "sonner";
 export default function HomePage() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // 1. On ajoute un état de chargement
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Ce code s'exécute uniquement dans le navigateur
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
     } else {
       const storedEmail = localStorage.getItem("userEmail");
       setUserEmail(storedEmail || "Utilisateur");
-      setIsLoading(false); // 2. On a fini de vérifier, on arrête le chargement
+      setIsLoading(false);
     }
   }, [router]);
 
@@ -29,7 +29,6 @@ export default function HomePage() {
     router.push("/login");
   };
 
-  // 3. On utilise l'état de chargement pour afficher le message
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -38,7 +37,6 @@ export default function HomePage() {
     );
   }
 
-  // Ce code ne s'affiche que si isLoading est false et que l'utilisateur est connecté
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-lg text-center">
@@ -50,7 +48,7 @@ export default function HomePage() {
         </p>
         <button
           onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105"
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline"
         >
           Déconnexion
         </button>
