@@ -3,6 +3,11 @@ set -e
 
 echo "🏗️ Initialisation de l'environnement Symfony..."
 
+# Exécute les migrations de la base de données avant tout
+echo "Application des migrations de la base de données..."
+php bin/console doctrine:migrations:migrate --env=prod --no-interaction
+
+
 # Création et permission des répertoires
 mkdir -p var/cache var/log
 echo "🔐 Correction des droits sur var/"
