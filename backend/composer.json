@@ -9,6 +9,7 @@
         "ext-iconv": "*",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.15",
+        "doctrine/doctrine-fixtures-bundle": "^4.1",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
         "gesdinet/jwt-refresh-token-bundle": "^1.5",
@@ -79,7 +80,6 @@
         }
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^4.1",
         "symfony/maker-bundle": "^1.64"
     }
 }
