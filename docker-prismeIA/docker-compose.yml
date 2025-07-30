@@ -38,6 +38,7 @@ services:
       APP_FRONTEND_URL: ${APP_FRONTEND_URL}
       APP_ENV: ${APP_ENV}
       APP_SECRET: ${APP_SECRET}
+      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN}
 
     depends_on:
       - db # S'assure que la BDD démarre avant le PHP

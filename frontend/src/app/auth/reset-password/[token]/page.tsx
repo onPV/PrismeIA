@@ -24,7 +24,8 @@ export default function ResetPasswordPage() {
 
     try {
       // Utilisation du chemin relatif qui sera proxyfié par Nginx
-      const res = await fetch(`/api/auth/reset-password/${token}`, {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const res = await fetch(`${baseUrl}/api/auth/reset-password/${token}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

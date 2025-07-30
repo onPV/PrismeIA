@@ -11,8 +11,7 @@ services:
     rootDir: backend
     dockerfilePath: ./Dockerfile.prod
     plan: free
-    healthCheck: # <-- AJOUTÉ : Indispensable pour que Render sache que le service est prêt
-      path: /healthz
+    healthCheckPath: /healthz
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -35,9 +34,9 @@ services:
     buildCommand: "npm install && npm run build"
     startCommand: "npm start"
     plan: free # <--- CETTE LIGNE GARANTIT L'UTILISATION DU PLAN GRATUIT
-    rewrites:
-      - source: /api/:path*
-        destination: https://prismeia-backend-staging.onrender.com/api/:path*
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://prismeia-backend-staging.onrender.com/api
 
 # Groupe de variables d'environnement secrètes
 envVarGroups:
@@ -49,6 +48,7 @@ envVarGroups:
       - key: JWT_PASSPHRASE
       - key: JWT_SECRET_KEY
       - key: JWT_PUBLIC_KEY
+      - key: CORS_ALLOW_ORIGIN
 
 # Service Base de Données (PostgreSQL)
 databases:
