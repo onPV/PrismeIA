@@ -18,7 +18,7 @@ export default function LoginPage() {
 
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${baseUrl}/auth/login`, {
+      const res = await fetch(`${baseUrl}/api/auth/login`, {
         // Chemin relatif pour le proxy Nginx
         method: "POST",
         headers: {

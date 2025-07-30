@@ -49,7 +49,7 @@ services:
     container_name: prismeia_nginx
     restart: unless-stopped
     ports:
-      - "80:80" # Expose le port 80 (HTTP) sur ta machine locale
+      - "8081:80" # Expose le port 80 (HTTP) sur ta machine locale
       # - "443:443" # Pour HTTPS, à configurer plus tard avec un certificat si besoin
     volumes:
       # Monte le fichier de configuration Nginx que tu as créé
