@@ -7,7 +7,8 @@ COPY composer.json composer.lock ./
 RUN composer install --no-scripts --optimize-autoloader
 # installer toutes les dépendances meme celle de dev -> --no-dev
 
-
+# NOUVELLE ÉTAPE : On force la présence du bundle de fixtures
+RUN composer require doctrine/doctrine-fixtures-bundle
 
 # --- 2. Build Final App ---
 FROM php:8.2-fpm-alpine as app
