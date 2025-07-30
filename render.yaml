@@ -45,10 +45,17 @@ envVarGroups:
       - key: APP_SECRET
         generateValue: true
       - key: MAILER_DSN
+        value: ""
       - key: JWT_PASSPHRASE
+        value: ""
       - key: JWT_SECRET_KEY
+        value: ""
       - key: JWT_PUBLIC_KEY
+        value: ""
+      - key: JWT_PRIVATE_KEY
+        value: ""
       - key: CORS_ALLOW_ORIGIN
+        value: ""
 
 # Service Base de Données (PostgreSQL)
 databases:
