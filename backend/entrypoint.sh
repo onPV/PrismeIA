@@ -3,19 +3,6 @@ set -e
 
 echo "🏗️ Initialisation de l'environnement Symfony..."
 
-echo "============================================="
-echo "DEBUT DU TEST DE DIAGNOSTIC NGINX"
-echo "Contenu de /etc/nginx/nginx.conf DANS le conteneur :"
-echo "---------------------------------------------"
-
-# Affiche le contenu du fichier de configuration Nginx utilisé
-cat /etc/nginx/nginx.conf
-
-echo "---------------------------------------------"
-echo "FIN DU CONTENU. Tentative de démarrage des services..."
-echo "============================================="
-
-
 # 1. Exécute les migrations pour créer la structure de la base de données
 echo "Application des migrations de la base de données..."
 php bin/console doctrine:migrations:migrate --env=prod --no-interaction
