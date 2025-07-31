@@ -36,7 +36,7 @@ services:
     plan: free # <--- CETTE LIGNE GARANTIT L'UTILISATION DU PLAN GRATUIT
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://prismeia-backend-staging.onrender.com/api
+        value: https://prismeia-backend-staging.onrender.com
 
 # Groupe de variables d'environnement secrètes
 envVarGroups:
