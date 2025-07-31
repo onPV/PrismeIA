@@ -42,33 +42,38 @@ _ Validation du bon envoi des emails de réinitialisation via l'inbox Mailtrap d
 
 1.6. **Préparation pour l'authentification OAuth2 (Google, LinkedIn) (Reportée) :** \* _Cette étape est reportée à une phase ultérieure pour se concentrer sur les fonctionnalités principales._
 
-1.7. **Déploiement Initial sur Render (Base de Données + Backend) (Terminée)**
-_ **Base de Données :** Création d'un service **PostgreSQL managé** sur le plan gratuit de Render pour l'environnement de staging.
-_ **Backend :** Création d'un **Web Service** sur Render pour déployer le conteneur Docker du backend (`Dockerfile.prod`).
-_ **Configuration des variables d'environnement** sur Render, incluant `DATABASE_URL`, `APP_ENV=prod`, `APP_DEBUG=0`, `MAILER_DSN` pour la production, et les clés JWT.
-_ **Résolution des problèmes de déploiement :**
-_ **Problème initial :** L'application ne démarrait pas, levant une erreur `Unable to read .env file` car elle se lançait en mode `dev` au lieu de `prod`.
-_ **Diagnostics effectués :**
-_ Confirmation via `printenv` que les variables d'environnement étaient bien présentes dans le conteneur.
-_ Confirmation via `cat` que les derniers fichiers (`entrypoint.sh`, `bin/console`) étaient bien utilisés lors du déploiement.
-_ **Cause finale identifiée :** Le processus `php` en ligne de commande, lancé depuis le script `entrypoint.sh`, n'héritait pas correctement des variables d'environnement du shell parent dans l'environnement d'exécution de Render.
-_ **Solution finale implémentée :** Remplacement de l'appel direct à `php bin/console doctrine:migrations:migrate` par un script PHP dédié (`run_migrations.php`). Ce script force l'environnement en `prod` puis exécute la commande de migration de manière programmatique, contournant ainsi le problème de transmission des variables. \* **Statut :** Le service backend est maintenant **déployé avec succès**, les migrations de la base de données sont appliquées, et l'application répond correctement aux health checks (ex: `/healthz`).
+1.7. **Déploiement Complet sur Render via Blueprint (Terminée)**
+_ **Infrastructure as Code :** Création d'un fichier **`render.yaml`** pour définir l'ensemble de l'infrastructure (BDD, Backend, Frontend) de manière reproductible.
+_ **Base de Données :** Déploiement d'un service **PostgreSQL managé** sur le plan gratuit de Render.
+_ **Backend (Symfony) :** Déploiement d'un **Web Service** Docker à partir du `Dockerfile.prod`.
+_ Configuration du **Health Check** (`/healthz`) pour que Render sache quand le service est prêt.
+_ Configuration du **CORS** via le `nelmio/cors-bundle` pour autoriser les requêtes provenant du frontend.
+_ **Frontend (Next.js) :** Déploiement d'un **Web Service** Node.js.
+_ Configuration via une variable d'environnement **`NEXT_PUBLIC_API_URL`** pour que le frontend communique directement avec le backend.
+_ **Gestion des Secrets :** Création d'un **Environment Group** sur Render pour centraliser toutes les variables sensibles (`MAILER_DSN`, clés JWT, `CORS_ALLOW_ORIGIN`).
+_ **Initialisation de la Base de Données :**
+_ Le script `entrypoint.sh` du backend exécute automatiquement les **migrations Doctrine** (`doctrine:migrations:migrate`) au démarrage pour créer la structure des tables. \* Il exécute ensuite les **fixtures** (`doctrine:fixtures:load`) pour peupler la base de données avec des données de test initiales.
+
+---
+
+## Résolution des Problèmes Clés (Déploiement)
+
+- **Problème de `bin/console` sur Render :** Résolu en retirant l'option `--no-dev` de la commande `composer install` dans le `Dockerfile.prod` et en activant le `DoctrineFixturesBundle` pour tous les environnements dans `config/bundles.php`, garantissant ainsi que toutes les dépendances nécessaires sont disponibles en production.
+- **Problème de `Redirects/Rewrites` :** Il a été confirmé par le support de Render que cette option est réservée aux "Static Sites". La solution a été d'adopter une communication directe entre le frontend et le backend via une URL d'API explicite.
+- **Erreurs CORS :** Résolues en installant et en configurant le `nelmio/cors-bundle` sur le backend et en mettant à jour la configuration Nginx (`nginx.conf`) pour qu'elle gère correctement les requêtes de pré-vérification (`OPTIONS`).
+- **Erreurs de Build Frontend (`localStorage is not defined`) :** Corrigées en déplaçant tout le code accédant à `localStorage` à l'intérieur de hooks `useEffect` pour s'assurer qu'il ne s'exécute que côté client.
 
 ---
 
 ## Critères de Validation pour la Phase 1
 
-- **[✓]** Un nouvel utilisateur peut s'inscrire avec succès et se connecter.
-- **[✓]** Les erreurs d'authentification (mauvais identifiants) sont gérées correctement.
-- **[✓]** Un utilisateur peut demander la réinitialisation de son mot de passe, recevoir un email, et réinitialiser son mot de passe avec succès via le lien fourni.
-- **[✓]** Un utilisateur connecté peut consulter et mettre à jour les informations de son profil (nom, email, mot de passe).
-- **[✓]** Toutes les routes API sensibles (comme `/api/profile`) sont bien protégées par le token JWT et inaccessibles sans authentification valide.
-- **[✓]** Les tokens JWT peuvent être rafraîchis pour maintenir la session de l'utilisateur active.
-- **[✓]** L'environnement de développement Docker est stable et les scripts de gestion fonctionnent comme prévu.
+- **[✓]** L'environnement de développement Docker est stable et les scripts de gestion (`start-prisme.sh`, `stop-prisme.sh`) fonctionnent comme prévu.
 - **[✓]** La base de données est déployée et accessible sur Render.
-- **[✓]** Le service backend est déployé sur Render, démarre sans erreur et répond aux requêtes.
-- **[ ]** Le service frontend est déployé et communique correctement avec le backend via le système de proxy de Render.
-- **[ ]** Un utilisateur peut s'inscrire et se connecter sur l'environnement de production.
+- **[✓]** Le service backend est déployé sur Render, démarre sans erreur, et répond aux requêtes.
+- **[✓]** Le service frontend est déployé sur Render.
+- **[✓]** Le frontend communique correctement avec le backend (les erreurs CORS sont résolues).
+- **[✓]** Un utilisateur peut se connecter et demander la réinitialisation de son mot de passe sur l'environnement Render.
+- **[ ]** Un nouvel utilisateur peut s'inscrire avec succès sur l'environnement de production (à valider).
 
 ---
 
