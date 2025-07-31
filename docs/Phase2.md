@@ -1,3 +1,31 @@
+# ➡️ PHASE 2 : Création du Panneau d'Administration (utilisateurs & categories )
+
+## **Objectif :** L'objectif de cette phase est de doter l'application d'une interface d'administration robuste et sécurisée en utilisant le bundle EasyAdmin. Ce panneau permettra à un administrateur de gérer les entités principales de l'application, en commençant par les utilisateurs (création, modification, suppression) et les catégories d'IA. Cette étape est cruciale pour la gestion et la modération de la plateforme avant d'ouvrir l'inscription au public.
+
+- **Phase 2.1 : Installation et Configuration Initiale d'EasyAdmin**
+
+  - Installer le bundle easycorp/easyadmin-bundle via Composer.
+
+  - Générer le "Dashboard Controller", qui sera le point d'entrée de l'interface d'administration.
+
+  - Configurer la sécurité (security.yaml) pour protéger la route /admin et la réserver aux utilisateurs ayant le ROLE_ADMIN.
+
+- **Phase 2.2 : Gestion des Utilisateurs (CRUD)**
+
+  - Générer un "CRUD Controller" pour l'entité User.
+
+  - Configurer les champs à afficher dans la liste et les formulaires (email, rôles, etc.).
+
+  - Personnaliser le formulaire de création/édition pour gérer correctement le hachage des mots de passe.
+
+- **Phase 2.3 : Gestion des Catégories d'IA (CRUD)**
+
+  - Générer un "CRUD Controller" pour l'entité IaCategory.
+
+  - Configurer les champs à afficher (nom, description, etc.).
+
+---
+
 # ➡️ PHASE 2 : Profil Utilisateur, Crédits et Abonnements
 
 **Objectif :** Enrichir l'application en permettant aux utilisateurs de gérer leur profil, de visualiser leurs crédits et de comprendre les différents plans d'abonnement. Cette phase pose les bases pour la monétisation future.
