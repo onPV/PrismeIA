@@ -98,6 +98,11 @@ export default function LoginPage() {
               Mot de passe oublié?
             </Link>
           </div>
+          <div className="text-right text-xs text-gray-400 mt-4">
+            V :{" "}
+            {process.env.NEXT_PUBLIC_GIT_COMMIT_SHA?.substring(0, 7) ||
+              "locale"}
+          </div>
         </form>
       </div>
     </div>
